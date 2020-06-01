@@ -1,2 +1,2 @@
-# YOUR COURSE TITLE
-20XX Session XX Course Work
+# Web Application Security and Testing
+2020 Session Two Course Work
