@@ -38,7 +38,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
         if messageInfo.getHttpService().getHost() == HOST:
             
             data = self.helpers.toggleRequestMethod(self.helpers.buildHttpRequest(URL("https://" + TUNNEL + "/")))
-            data = self.helpers.addParameter(data, self.helpers.buildParameter("request", self.helpers.bytesToString(messageInfo.getRequest()), IParameter.PARAM_BODY))
+            data = self.helpers.addParameter(data, self.helpers.buildParameter("request", self.helpers.bytesToString(self.helpers.urlEncode(messageInfo.getRequest())), IParameter.PARAM_BODY))
 
             messageInfo.setRequest(data)
             httpService = messageInfo.getHttpService()
