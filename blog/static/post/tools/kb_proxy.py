@@ -21,7 +21,7 @@ class BurpExtender(IBurpExtender, IHttpListener):
         callbacks.registerHttpListener(self)
 
     def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo):
-        if not messageIsRequest and evaluateHeaders:
+        if not messageIsRequest and evaluateHeaders and messageInfo.getComment() == HOST:
             # Jython doesn't support wildcard destructuring
             # # proxyHeader, header, body, *_ = [*self.helpers.bytesToString(messageInfo.getResponse()).split(u"\r\n\r\n", 2), None, None]
             split = self.helpers.bytesToString(messageInfo.getResponse()).split(u"\r\n\r\n", 2)
@@ -43,3 +43,4 @@ class BurpExtender(IBurpExtender, IHttpListener):
             messageInfo.setRequest(data)
             httpService = messageInfo.getHttpService()
             messageInfo.setHttpService(self.helpers.buildHttpService(TUNNEL, httpService.getPort(), httpService.getProtocol()))
+            messageInfo.setComment(HOST)
