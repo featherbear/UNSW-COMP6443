@@ -2,6 +2,7 @@
 title: "Flag Alert"
 date: 2020-06-23T10:03:10+10:00
 
+categories: ["Tools"]
 hiddenFromHomePage: false
 postMetaInFooter: false
 
