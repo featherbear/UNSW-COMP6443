@@ -32,7 +32,7 @@
 
     <!-- Content -->
     <div class="post-content">
-      {{ .Content }}
+      {{ if .Site.IsServer }} {{ .Content }} {{ else }} {{ .Content | replaceRE "COMP6443{.+?}" "COMP6443{-flag-redacted-}" | safeHTML }} {{ end }}
     </div>
 
     <!-- Copyright -->
