@@ -68,7 +68,7 @@ Amass is another tool which can perform passive (and also active) recon
   * mailauth-prod.-QBSITE- - COMP6443{I_FOUND_IT_d5c28e68eda81cfc26951526ce849714.ejUyMDY2Nzc=.aAnctCt4PabCdTDiEd+s1A==}
 * Dictionary
   * blog.-QBSITE- - COMP6443{I_FOUND_IT_126ac9f6149081eb0e97c2e939eaad52.ejUyMDY2Nzc=.A8ZA1vadvAxanMRz8w6bIA==}
-  * test.-QBSITE- - COMP6*443{I_FOUND_IT_098f6bcd4621d373cade4e832627b4f6.ejUyMDY2Nzc=.f0sdINk/9kTgRzuCcKWEUg==}
+  * test.-QBSITE- - COMP6443{I_FOUND_IT_098f6bcd4621d373cade4e832627b4f6.ejUyMDY2Nzc=.f0sdINk/9kTgRzuCcKWEUg==}
   * super-secret.admin.-QBSITE- - COMP6443{I_FOUND_IT_e7e964218749ecb479cdf80a7aade0a1.ejUyMDY2Nzc=.meIWBsxqw1ScmGEOyUBrqA==}
   * m.staging.-QBSITE- - COMP6443{I_FOUND_IT_c41a76367bce74581a13ab5eeda16514.ejUyMDY2Nzc=.xOcEF5obRakufC3En4+wDQ==}
   * m.-QBSITE- - COMP6443{I_FOUND_IT_6f8f57715090da2632453988d9a1501b.ejUyMDY2Nzc=.xc4tk7izI049tPDhGQ0RaA==}
