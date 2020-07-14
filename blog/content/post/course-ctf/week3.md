@@ -61,7 +61,9 @@ We can also change the filename to test (I got this purely by guessing)
 
 # Files - Deprecated Admin
 
-Site: `files.-QBSITE-/admin`
+Site: `files.-QBSITE-/admin`  
+Solution File: [files_pinBrute.py](./files_pinBrute.py)
+
 
 Just a 4 digit PIN brute-force. PIN was `1024`
 
@@ -79,7 +81,9 @@ https://files.-QBSITE-/document/staff_super_secret_file?r=c2FyYWg=
 
 # Files - You are admin!
 
-Site: files.-QBSITE-
+Site: files.-QBSITE-  
+Solution File: [files_secureFlask.py](./files_secureFlask.py)
+
 
 Our cookie isn't a JWT tokens... it's a Secure Flask Cookie!
 
@@ -163,7 +167,8 @@ Page crawl
 
 # Blog - Page
 
-Site: blog.-QBSITE-/?page_id=53
+Site: blog.-QBSITE-/?page_id=53  
+Crawl: ![blog_wpRecon.py](./blog_wpRecon.py)
 
 Page crawl
 
