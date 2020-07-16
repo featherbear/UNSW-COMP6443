@@ -19,7 +19,7 @@ sequenceDiagrams:
 # Support
 
 Site: support.-QBSITE-  
-Solution File: ![support-base58enum.py](./support-base58enum.py)
+Solution File: [support-base58enum.py](./support-base58enum.py)
 
 When creating a new ticket, the slug generated is a base58 encoded string of `userid:noteid`.  
 Bruteforce the userids to find a matching `<user>:1`, then enumerate horizontally.

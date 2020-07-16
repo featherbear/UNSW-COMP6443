@@ -168,7 +168,7 @@ Page crawl
 # Blog - Page
 
 Site: blog.-QBSITE-/?page_id=53  
-Crawl: ![blog_wpRecon.py](./blog_wpRecon.py)
+Crawl: [blog_wpRecon.py](./blog_wpRecon.py)
 
 Page crawl
 
