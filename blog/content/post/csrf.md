@@ -31,14 +31,68 @@ In fact, if arbitrary HTML is able to be written - an attacker could even implem
 
 ---
 
+# Invalidated Redirect
+
+What if a website has an auth callback (or even simply a redirect)
+
+`http://website.com/login?redirect=http://website.com/home`
+
+What if we changed `http://website.com/home` to `http://evil.com/hehe/?`????
+
+
+# Response Splitting
+
+```
+resp["Location"] = "\r\nContent-Type: text/html\r\nSet-Cookie: ree=hahah\r\n\r\nehehehehhe"
+```
+
 # Defending against CSRF
 
 * Identify where the request is coming from
   * Source and Target Origin Host
-  * Origin rules
+  * [Origin rules](../cross-origin-same-origin)
 * CSRF Tokens - nonce value that is needs to be sent with the request
-
+  * But these can be stolen with client-side code!
 ---
+
+# Clickjacking
+
+Hidden forms that are clicked on instead of the actual form control.
+
+## Clickjacking vs Phishing
+
+* Phishing involves creating an exact duplicate of the website
+* Clickjacking involves loading the actual website, but adding elements which are clicked on instead
+
+## Defense - Frame Buster
+
+* Shows all frames
+
+## Defense - NoScript
+
+* Disable JS
+
+## Defense - X-Frame Options
+
+A website can send these headers in their response, to prevent those pages from being loaded as an `iframe`.
+
+# Content Secure Policy (CSP)
+
+Enforces the loading of information only from trusted locations
+
+* HTTP Header
+* `<meta>` Tag
+* CSP report-only mode for monitoring
+  * Adding a report URI will send a request to that URI when a violation occurs
+
+* `frame-ancestors` - Only allow none/same site/certain domain to be loaded as a frame
+
+### Nonce
+
+Arbitrary numbers that are added to script tags to prove that they are trusted.  
+
+* `nonce-NONCEVAL` - scripts with the nonce `NONCEVAL` are allowed to execute
+* `strict-dynamic` - scripts with the nonce `NONCEVAL` that dynamically load other scripts are allowed to execute
 
 # Considerations
 

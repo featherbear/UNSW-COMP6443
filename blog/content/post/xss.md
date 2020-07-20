@@ -79,4 +79,4 @@ Validate as many fields as you can!
   * script, iframe, onload, onerror
 * Escape input
   * URL encode, HTML encode
-
+* Use `innerText` or `textContent` instead of `innerHTML`

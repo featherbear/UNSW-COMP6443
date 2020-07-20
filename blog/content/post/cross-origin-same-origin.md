@@ -51,6 +51,8 @@ The server's response to the request will look similar to the following
 receivedData({"value": 5, "is-even": false})
 ```
 
+Some websites allow a `?callback` parameter to be passed in the GET request to make the results wrapped in a JSON function.
+
 ## Allowing cross-origin
 
 ### Why Allow
