@@ -1,5 +1,5 @@
 ---
-title: "Course CTF: Week 5"
+title: "Course CTF: Week 5 & 6"
 date: 2020-06-25T22:31:19+10:00
 
 categories: ["Course CTF"]
