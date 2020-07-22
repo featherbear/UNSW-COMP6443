@@ -285,13 +285,7 @@ When we enter this payload into the search field, the browser will
 
 </details>
 
-
-
-
-
-
-
-# Report
+## Report
 
 Site: report.-QBSITE-
 
