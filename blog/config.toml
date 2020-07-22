@@ -44,6 +44,9 @@ copyright = "Andrew Wong (z5206677)"
   identifier = "categories"
   url = "/categories/"
 
+[markup.goldmark.renderer]
+  unsafe= true
+
 [params]
   version = "4.x"           # Used to give a friendly message when you have an incompatible update
   debug = false             # If true, load `eruda.min.js`. See https://github.com/liriliri/eruda
@@ -88,7 +91,7 @@ copyright = "Andrew Wong (z5206677)"
 
   # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
-  customCSS = ['typedjs.shortcode.css']
+  customCSS = ['overrides.css', 'typedjs.shortcode.css']
   customJS = ['typed.js@2.0.9', 'typedjs.shortcode.js', 'offsite.js']
 
   [params.publicCDN]        # load these files from public cdn                          # 启用公共CDN，需自行定义
