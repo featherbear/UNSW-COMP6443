@@ -80,6 +80,8 @@ The site performs some basic XSS prevention by stripping out the `onerror` and `
 
 > `COMP6443{REF_XSS_SO_SIMPLE.ejUyMDY2Nzc=.Xm3aaquwPaMTtFOH8YOEJw==}`
 
+It also turns out that `img`, `onerror` and `onload` are not fully sanitised properly, so a payload like `<iimgmg src=a ononerrorerror=alert('pwned!')>` will work
+
 ### Stored XSS
 
 Submit a comment with the payload
