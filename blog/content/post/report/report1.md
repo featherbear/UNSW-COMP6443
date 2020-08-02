@@ -57,6 +57,8 @@ z5206677
   </tr>
 </table>
 
+<br/><br/><br/><br/><br/>
+
 ## Vulnerability Classifications
 
 <table>
@@ -93,6 +95,8 @@ Vulnerabilities which grant knowledge of restricted resources
    </td>
   </tr>
 </table>
+
+<br/><br/><br/><br/><br/>
 
 ## Immediate Critical Vulnerabilities To Address
 
@@ -180,9 +184,12 @@ Account takeover
   </tr>
 </table>
 
-## Site Assessment
+<br/><br/><br/><br/><br/>
 
-### Subdomain Enumeration
+= Site Assessment =
+---
+
+## Subdomain Enumeration
 
 **Vulnerability Details**
 
@@ -270,7 +277,7 @@ Possible steps to minimise the damage from brute force subdomain enumeration
 [1] [https://security.stackexchange.com/questions/92574/what-is-the-purpose-of-subdomain-enumeration](https://security.stackexchange.com/questions/92574/what-is-the-purpose-of-subdomain-enumeration) \
 [2] [https://opendatasecurity.io/how-to-protect-your-business-from-brute-forcing-subdomains-attacks/](https://opendatasecurity.io/how-to-protect-your-business-from-brute-forcing-subdomains-attacks/)
 
-### robots.txt Content Exposure
+## robots.txt Content Exposure
 
 **Vulnerability Details**
 
@@ -306,7 +313,7 @@ The robots.txt file is not a security threat in itself, where proper usage is be
 
 [https://portswigger.net/kb/issues/00600600_robots-txt-file](https://portswigger.net/kb/issues/00600600_robots-txt-file)
 
-### Cookie Tampering
+## Cookie Tampering
 
 **Vulnerability Details:**
 
@@ -354,9 +361,9 @@ In the case of* bigapp.-QBSITE-* this could lead to the unauthorised addition, m
 1. Change the authentication and authorisation flow of the affected websites. Cookies should only be used for storing authentication details, and **not** for authorisation claims.
 2. Cookies should not reveal important information, only a method to verify who the user is, rather than what the user can access.
 
-### Security Misconfiguration
+## Security Misconfiguration
 
-#### JWT Verification
+### JWT Verification
 
 **Vulnerability Details:**
 
@@ -395,7 +402,7 @@ A simple fix would be to verify the signature, and reject the token if the signa
 [https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage](https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage) \
 [https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/](https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/)
 
-#### Weak Passwords
+### Weak Passwords
 
 **Vulnerability Details**
 
@@ -429,7 +436,7 @@ This vulnerability poses a high risk, as simple passwords can be easily brute fo
 
 [https://www.acunetix.com/vulnerabilities/web/weak-password/#:~:text=A%20weak%20password%20is%20short,common%20variations%20on%20these%20themes.](https://www.acunetix.com/vulnerabilities/web/weak-password/#:~:text=A%20weak%20password%20is%20short,common%20variations%20on%20these%20themes.)
 
-#### Legacy Systems
+### Legacy Systems
 
 **Vulnerability Details**
 
@@ -456,7 +463,7 @@ Legacy systems pose a high security risk, as they are unmaintained and often con
 
 - Deprecated and legacy systems should be taken offline immediately
 
-#### Directory Listing
+### Directory Listing
 
 **Vulnerability Details**
 
@@ -482,9 +489,9 @@ There is little to no risk for the kb.-QBSITE- site as there is no sensitive con
   Due to the nature of the file names, it would be very difficult to quickly enumerate through the pages of the site.
 - Apply proper access control for files that should be secure
 
-### Insecure Direct Object Reference
+## Insecure Direct Object Reference
 
-#### URL Manipulation / Enumeration
+### URL Manipulation / Enumeration
 
 **Vulnerability Details**
 
@@ -525,7 +532,7 @@ Checking access privileges before allowing any user to access a URL. Encoding pa
 
 [1] [https://owasp.org/www-community/attacks/forced_browsing](https://owasp.org/www-community/attacks/Forced_browsing)
 
-#### Body Manipulation
+### Body Manipulation
 
 **Vulnerability Details**
 
@@ -566,7 +573,7 @@ The data flow model should be changed, such that staff-only and pricing data is 
 
 [1] [https://owasp.org/www-community/attacks/web_parameter_tampering](https://owasp.org/www-community/attacks/Web_Parameter_Tampering)
 
-#### Privilege Escalation
+### Privilege Escalation
 
 **Vulnerability Details**
 
@@ -597,7 +604,7 @@ The escalated account will then be able to perform any administrative action, wh
 
 Secure access to the `files.-QBSITE-/#/staff/wfh` page, by means of IP filtering, authorisation or password access
 
-### Local File Inclusion
+## Local File Inclusion
 
 **Vulnerability Details**
 
@@ -650,7 +657,7 @@ LFI vulnerabilities allow an attacker to open, discover, read and extract arbitr
 
 [https://www.acunetix.com/blog/articles/local-file-inclusion-lfi/](https://www.acunetix.com/blog/articles/local-file-inclusion-lfi/)
 
-### Remote Code Execution
+## Remote Code Execution
 
 **Vulnerability Details**
 
@@ -718,7 +725,7 @@ For gcc.-QBSITE-, the web server should be configured to not execute detected PH
 
 [https://www.drizgroup.com/driz_group_blog/what-is-remote-code-execution-attack-how-to-prevent-this-type-of-cyberattack#:~:text=Remote%20code%20execution%20(RCE)%20refers,arbitrary%20malicious%20software%20(malware).](<https://www.drizgroup.com/driz_group_blog/what-is-remote-code-execution-attack-how-to-prevent-this-type-of-cyberattack#:~:text=Remote%20code%20execution%20(RCE)%20refers,arbitrary%20malicious%20software%20(malware).>)
 
-### SQL Injection
+## SQL Injection
 
 **Vulnerability Details**
 
@@ -726,7 +733,7 @@ SQL injection is a code injection technique that allows the attacker to take ove
 
 **Proof of Concept / Steps to Reproduce**
 
-#### Data Retrieval
+### Data Retrieval
 
 - bigapp.-QBSITE-
 
@@ -782,7 +789,7 @@ An example of SQL injection exposing information schema tables is on bigapp.-QBS
 
     ```
 
-#### Authentication / Access Bypass
+### Authentication / Access Bypass
 
 - bigapp.-QBSITE-
 
@@ -835,7 +842,7 @@ In the event of bypassing/altering registration checks, an attacker may be able 
 
 [https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
 
-### XML External Entity
+## XML External Entity
 
 **Vulnerability Details**
 
@@ -954,7 +961,7 @@ Disabling of external entities is strongly advised, as it will mitigate this att
 
 [https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/](https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/)
 
-### Server Side Request Forgery
+## Server Side Request Forgery
 
 **Vulnerability Details**
 
@@ -990,9 +997,9 @@ Whilst haas.-QBSITE- is intended to be a HTTP tunneling service - there are no r
 - Implement a whitelist of allowed target QuoccaBank destinations.
 - Restrict access of haas.-QBSITE- to only required users
 
-### Web Application Firewall Bypass
+## Web Application Firewall Bypass
 
-#### Input Sanitisation
+### Input Sanitisation
 
 **Vulnerability Details**
 
@@ -1023,7 +1030,7 @@ Bypassing input sanitisation mechanisms grant the attacker to gain control over 
 - Ensure input sanitisation is performed during all stages of string insertion and concatenation
 - Opt to use secure string replacement strategies
 
-#### Keyword Filtering
+### Keyword Filtering
 
 **Vulnerability Details**
 
@@ -1078,7 +1085,7 @@ Bypassing blacklist restrictions will lead all security concerns that were inten
 - Compare the output/result data against the blacklist. Whilst this may not prevent RCE and other attacks, it will mitigate the ease of data leaking
 - Disable processing of external entities
 
-#### File Extension Filtering
+### File Extension Filtering
 
 **Vulnerability Details**
 
