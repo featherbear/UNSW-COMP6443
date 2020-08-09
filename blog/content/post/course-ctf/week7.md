@@ -163,10 +163,12 @@ We can then form our payload
 
 > `COMP6443{STORED_XSS_SO_MEDIUM.ejUyMDY2Nzc=.TjXo3P2uvQ9IaECuZlRjag==}`
 
+
+### Aside: dcreat
+
 <details>
 
 <summary>Bored? Want to see what I tried? (it didn't work, and was way overcomplicated)</summary>
-
 
 The `/create.html?` and `/user-create` endpoints have a different CSP header to the rest of the website...
 
