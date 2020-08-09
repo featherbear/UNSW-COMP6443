@@ -1113,3 +1113,16 @@ This vulnerability allows any arbitrary file to be uploaded to the server - whic
 
 - Perform heuristic analysis of file contents; however this may be resource intensive and will not guarantee safety
 - Limit access and methods on the uploaded file
+
+---
+
+# Marking Feedback
+
+Mark: 11.9/12.5  
+
+1. Clear effort in formatting and making the findings clear, concise and easy to understand. Effectively leverages colour to make the vulnerability impact pop out from the page for the reader.  
+2. Great summary at the start of the report that lists the most critical vulnerabilities to make it easy for an business executive to easily determine what they should focus on.  
+3. Solid referencing and provides extra resources/links in the remediation to further assist developers in making remediation as easy as possible. In the case where their own tools have been written, they have also been provided in case the business wishes to replicate the tester's methodology.  
+4. Effectively states the business impact - takes the discussions one step further than "_we got full control_" and states what that means to the business e.g. "_stolen company data could result in an irreversible financial loss_". Perfect - this is really important in real life.  
+5. On the whole findings were written well. I am going to specifically mention a few as opportunities for improvement. The directory listing finding on page 16 has proof of concept steps missing. To reproduce, `haas` needs to be used to access `kb`. Details like those on page 34 could have been handy or a screenshot to demonstrate the issue. This level of detail for a POC would make it hard to reproduce alone. In general, some other minor examples where a little more information could have helped do exist. For example the weak password finding could include which accounts were compromised to indicate they need to be updated.  
+6. Super minor and more as a learning opportunity - you could tighten the vulnerability classification. Sometimes the report states "low impact" and others are "medium risk". In industry, risk and impact are very different. Likelihood x Impact = Inherent Risk. Sticking to impact would be fine 🙂
