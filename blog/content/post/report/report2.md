@@ -767,3 +767,15 @@ Bypassing keyword filtering can lead to security concerns such as enabling an at
 
 * Disable processing of external entities
 * Compare the output/result data against the blacklist. Whilst this may not prevent RCE and other attacks, it will mitigate the ease of data leaking.
+
+---
+
+# Marking Feedback
+
+Mark: 11.9/12.5
+
+* Nice work everyone! Clear and concise explanation of the vulnerabilities. Provides explanations of underlying concepts where required to help the client/business.
+* Still includes a clear section of the two vulnerabilities that should be prioritised to be fixed although the report is not in order of severity, this satisfies the requirement. The most important are seen first.
+* It is noted that feedback from the last report has been actioned around tightening the vulnerability classification - it is now consistently stated as impact.
+* Does effectively mention the business impact where appropriate e.g. disclosure of sensitive payroll data or discussing how impacting the availability of the student records system could halt enrolment of students and operations. Also demonstrates nuance for certain vulnerabilities such as science-tomorrow where the site is mostly public meaning that there is limited data to steal.
+
